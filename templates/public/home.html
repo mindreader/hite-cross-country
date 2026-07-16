@@ -2,19 +2,96 @@
 {% block title %}Home — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>Hite Elementary Cross Country</h1>
-<p>View practice times, race results, student progress, and upcoming events for the Hite Elementary cross country team.</p>
 
-<section class="card">
+{# ── Site intro ── #}
+<section class="pub-hero card mb-6">
+  <h1 class="pub-hero__title">Hite Elementary Cross Country</h1>
+  <p class="pub-hero__intro">
+    View practice times, race results, student progress, and upcoming events
+    for the Hite Elementary cross country team.
+  </p>
+</section>
+
+{# ── Student search ── #}
+<section class="card mb-6">
   <h2>Find a Student</h2>
-  <p class="text-muted">Search or browse the student directory.</p>
-  <a href="/students" class="btn btn-primary">View Students</a>
+  <form action="/students" method="get" class="pub-search-form" role="search">
+    <label for="home-search" class="visually-hidden">Search students by name</label>
+    <div class="pub-search-row">
+      <input
+        id="home-search"
+        type="search"
+        name="q"
+        placeholder="Search by name…"
+        autocomplete="off"
+        aria-label="Search students by name"
+        class="pub-search-input"
+      >
+      <button type="submit" class="btn btn-primary pub-search-btn">Search</button>
+    </div>
+  </form>
+  <p class="text-muted text-sm mt-4">
+    Or <a href="/students">browse the full alphabetical student directory</a>.
+  </p>
 </section>
 
-<section class="card">
+{# ── Upcoming events preview ── #}
+<section class="card mb-6">
   <h2>Upcoming Events</h2>
-  <p class="text-muted">Placeholder — Phase 2 will populate upcoming events here.</p>
-  <a href="/upcoming" class="btn btn-secondary">View All Upcoming Events</a>
-  <a href="/calendar" class="btn btn-secondary" style="margin-left:var(--sp-2)">Full Calendar</a>
+
+  {% if upcoming %}
+  <ul class="pub-event-list" aria-label="Upcoming events">
+    {% for evt in upcoming %}
+    <li class="pub-event-item">
+      <div class="pub-event-header">
+        <span class="pub-event-name">{{ evt.name }}</span>
+        {% if evt.type.value == 'race' %}
+          <span class="badge badge-race" aria-label="Race">Race</span>
+        {% elif evt.type.value == 'practice' %}
+          <span class="badge badge-practice" aria-label="Practice">Practice</span>
+        {% else %}
+          <span class="badge badge-meeting">{{ evt.type.value | replace('_', ' ') | title }}</span>
+        {% endif %}
+        {% if evt.status.value == 'postponed' %}
+          <span class="badge badge-postponed" aria-label="Postponed">Postponed</span>
+        {% endif %}
+      </div>
+      <dl class="pub-event-meta">
+        <div>
+          <dt class="visually-hidden">Date</dt>
+          <dd>{{ evt.start_datetime.strftime('%A, %B %-d, %Y') }}</dd>
+        </div>
+        <div>
+          <dt class="visually-hidden">Start time</dt>
+          <dd>{{ evt.start_datetime.strftime('%-I:%M %p') }}</dd>
+        </div>
+        {% if evt.location_name %}
+        <div>
+          <dt class="visually-hidden">Location</dt>
+          <dd>📍 {{ evt.location_name }}</dd>
+        </div>
+        {% endif %}
+        {% if evt.distance_label %}
+        <div>
+          <dt class="visually-hidden">Distance</dt>
+          <dd>📏 {{ evt.distance_label }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </li>
+    {% endfor %}
+  </ul>
+
+  {% else %}
+  <div class="empty-state">
+    <p>There are currently no upcoming events scheduled.</p>
+  </div>
+  {% endif %}
+
+  <div class="pub-event-links mt-4">
+    <a href="/upcoming" class="btn btn-primary">View All Upcoming Events</a>
+    <a href="/calendar" class="btn btn-secondary">Full Calendar</a>
+  </div>
 </section>
+
 {% endblock %}
