@@ -88,6 +88,13 @@ class SnapshotWorker(threading.Thread):
             self._interval,
             _SNAPSHOT_PATH,
         )
+        # Snapshot immediately on startup: guarantees a fresh pullable
+        # snapshot right after every deploy/restart instead of up to
+        # `interval` seconds later.
+        try:
+            run_snapshot()
+        except Exception:
+            pass  # logged inside run_snapshot
         while not self._stop_event.wait(self._interval):
             try:
                 run_snapshot()
