@@ -2,9 +2,163 @@
 {% block title %}Events — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>Events</h1>
-<p class="text-muted">Placeholder — Phase 2 (events agent) will add the event list with filtering here.</p>
-<div class="empty-state">
-  <p>Events coming soon.</p>
+<div class="page-header">
+  <h1>Events</h1>
+  <a href="/calendar" class="btn btn-secondary">View Calendar</a>
 </div>
+
+{# ── Filters ──────────────────────────────────────────────────────── #}
+<form class="filter-form" method="get" action="/events" aria-label="Filter events">
+  <div class="filter-form-row">
+    <label for="type-select" class="filter-label">Type</label>
+    <select id="type-select" name="type" onchange="this.form.submit()">
+      <option value="" {% if not current_type %}selected{% endif %}>All types</option>
+      {% for val, label in type_labels.items() %}
+      <option value="{{ val }}" {% if current_type == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    {% if all_distance_labels %}
+    <label for="dist-select" class="filter-label">Distance</label>
+    <select id="dist-select" name="distance" onchange="this.form.submit()">
+      <option value="" {% if not current_distance %}selected{% endif %}>All distances</option>
+      {% for dlabel in all_distance_labels %}
+      <option value="{{ dlabel }}" {% if current_distance == dlabel %}selected{% endif %}>{{ dlabel }}</option>
+      {% endfor %}
+    </select>
+    {% endif %}
+
+    {% if current_type or current_distance %}
+    <a href="/events" class="btn btn-secondary filter-clear">Clear filters</a>
+    {% endif %}
+  </div>
+</form>
+
+{# ── Upcoming section ─────────────────────────────────────────────── #}
+<section aria-labelledby="upcoming-heading">
+  <h2 id="upcoming-heading" class="section-heading">Upcoming</h2>
+
+  {% if upcoming %}
+  <div class="table-wrap">
+    <table class="table-stack">
+      <thead>
+        <tr>
+          <th scope="col">Event</th>
+          <th scope="col">Date</th>
+          <th scope="col">Type</th>
+          <th scope="col">Distance</th>
+          <th scope="col">Location</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in upcoming %}
+        <tr class="{% if event.status.value == 'cancelled' %}row-cancelled{% elif event.status.value == 'postponed' %}row-postponed{% endif %}">
+          <td data-label="Event"><a href="/events/{{ event.slug }}">{{ event.name }}</a></td>
+          <td data-label="Date">{{ event.start_datetime.strftime("%-m/%-d/%Y") }}</td>
+          <td data-label="Type">
+            {% if event.type.value == 'race' %}
+              <span class="badge badge-race">Race</span>
+            {% elif event.type.value == 'practice' %}
+              <span class="badge badge-practice">Practice</span>
+            {% elif event.type.value == 'team_meeting' %}
+              <span class="badge badge-meeting">Team Meeting</span>
+            {% else %}
+              <span class="badge badge-meeting">Other</span>
+            {% endif %}
+          </td>
+          <td data-label="Distance">{{ event.distance_label or "—" }}</td>
+          <td data-label="Location">{{ event.location_name or "—" }}</td>
+          <td data-label="Status">
+            {% if event.status.value == 'cancelled' %}
+              <span class="badge badge-cancelled">Cancelled</span>
+            {% elif event.status.value == 'postponed' %}
+              <span class="badge badge-postponed">Postponed</span>
+            {% elif event.status.value == 'completed' %}
+              <span class="badge badge-meeting">Completed</span>
+            {% else %}
+              <span class="text-muted text-sm">Scheduled</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>No upcoming events
+    {% if current_type or current_distance %}matching those filters{% endif %}.</p>
+  </div>
+  {% endif %}
+</section>
+
+{# ── Past section ─────────────────────────────────────────────────── #}
+<section aria-labelledby="past-heading" class="mt-8">
+  <h2 id="past-heading" class="section-heading">Past Events</h2>
+
+  {% if past %}
+  <div class="table-wrap">
+    <table class="table-stack">
+      <thead>
+        <tr>
+          <th scope="col">Event</th>
+          <th scope="col">Date</th>
+          <th scope="col">Type</th>
+          <th scope="col">Distance</th>
+          <th scope="col">Location</th>
+          <th scope="col">Status</th>
+          <th scope="col">Results</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in past %}
+        <tr class="{% if event.status.value == 'cancelled' %}row-cancelled{% endif %}">
+          <td data-label="Event"><a href="/events/{{ event.slug }}">{{ event.name }}</a></td>
+          <td data-label="Date">{{ event.start_datetime.strftime("%-m/%-d/%Y") }}</td>
+          <td data-label="Type">
+            {% if event.type.value == 'race' %}
+              <span class="badge badge-race">Race</span>
+            {% elif event.type.value == 'practice' %}
+              <span class="badge badge-practice">Practice</span>
+            {% elif event.type.value == 'team_meeting' %}
+              <span class="badge badge-meeting">Team Meeting</span>
+            {% else %}
+              <span class="badge badge-meeting">Other</span>
+            {% endif %}
+          </td>
+          <td data-label="Distance">{{ event.distance_label or "—" }}</td>
+          <td data-label="Location">{{ event.location_name or "—" }}</td>
+          <td data-label="Status">
+            {% if event.status.value == 'cancelled' %}
+              <span class="badge badge-cancelled">Cancelled</span>
+            {% elif event.status.value == 'postponed' %}
+              <span class="badge badge-postponed">Postponed</span>
+            {% elif event.status.value == 'completed' %}
+              <span class="badge badge-meeting">Completed</span>
+            {% else %}
+              <span class="text-muted text-sm">—</span>
+            {% endif %}
+          </td>
+          <td data-label="Results">
+            {% if event.status.value == 'completed' and result_counts.get(event.id, 0) > 0 %}
+              <a href="/events/{{ event.slug }}">{{ result_counts[event.id] }} result{% if result_counts[event.id] != 1 %}s{% endif %}</a>
+            {% elif event.status.value == 'completed' %}
+              <span class="text-muted text-sm">No results entered</span>
+            {% else %}
+              <span class="text-muted text-sm">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>No past events
+    {% if current_type or current_distance %}matching those filters{% endif %}.</p>
+  </div>
+  {% endif %}
+</section>
 {% endblock %}

@@ -1,10 +1,209 @@
 {% extends "base.html" %}
-{% block title %}Event Details — Hite Elementary Cross Country{% endblock %}
+{% block title %}{{ event.name }} — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>Event Details</h1>
-<p class="text-muted">Placeholder — Phase 2 (events agent) will render event info and results here.</p>
-<div class="empty-state">
-  <p>Event details coming soon.</p>
+{# ── Cancelled notice ─────────────────────────────────────────────── #}
+{% if event.status.value == 'cancelled' %}
+<div class="alert alert-error event-cancellation-notice" role="alert">
+  <strong>❌ This event has been cancelled.</strong>
+</div>
+{% endif %}
+
+{# ── Postponed notice ─────────────────────────────────────────────── #}
+{% if event.status.value == 'postponed' %}
+<div class="alert alert-warning event-postponed-notice" role="alert">
+  <strong>⚠️ This event has been postponed.</strong>
+  The schedule shown below reflects the updated date. Original details may have changed.
+</div>
+{% endif %}
+
+{# ── Event header ─────────────────────────────────────────────────── #}
+<div class="event-detail-header
+  {% if event.type.value == 'race' %}result-race
+  {% elif event.type.value == 'practice' %}result-practice
+  {% else %}result-other{% endif %}
+  card">
+
+  <div class="event-detail-title-row">
+    <h1 class="event-detail-title">{{ event.name }}</h1>
+    {# Type badge #}
+    {% if event.type.value == 'race' %}
+      <span class="badge badge-race">Race</span>
+    {% elif event.type.value == 'practice' %}
+      <span class="badge badge-practice">Practice</span>
+    {% elif event.type.value == 'team_meeting' %}
+      <span class="badge badge-meeting">Team Meeting</span>
+    {% else %}
+      <span class="badge badge-meeting">{{ type_labels.get(event.type.value, event.type.value) }}</span>
+    {% endif %}
+    {# Non-scheduled status badge #}
+    {% if event.status.value == 'cancelled' %}
+      <span class="badge badge-cancelled">Cancelled</span>
+    {% elif event.status.value == 'postponed' %}
+      <span class="badge badge-postponed">Postponed</span>
+    {% elif event.status.value == 'completed' %}
+      <span class="badge badge-meeting">Completed</span>
+    {% endif %}
+  </div>
+</div>
+
+{# ── Event details ────────────────────────────────────────────────── #}
+<div class="card event-detail-info">
+  <dl class="event-meta event-meta--detail">
+
+    <div class="event-meta-row">
+      <dt>Date</dt>
+      <dd>{{ event.start_datetime.strftime("%A, %B %-d, %Y") }}</dd>
+    </div>
+
+    <div class="event-meta-row">
+      <dt>Start time</dt>
+      <dd>{{ event.start_datetime.strftime("%-I:%M %p") }}</dd>
+    </div>
+
+    {% if event.end_datetime %}
+    <div class="event-meta-row">
+      <dt>End time</dt>
+      <dd>{{ event.end_datetime.strftime("%-I:%M %p") }}</dd>
+    </div>
+    {% endif %}
+
+    {% if event.distance_label %}
+    <div class="event-meta-row">
+      <dt>Distance</dt>
+      <dd>{{ event.distance_label }}</dd>
+    </div>
+    {% endif %}
+
+    {% if event.location_name %}
+    <div class="event-meta-row">
+      <dt>Location</dt>
+      <dd>
+        {{ event.location_name }}
+        {% if event.street_address %}
+          <br><span class="text-muted text-sm">{{ event.street_address }}</span>
+        {% endif %}
+        {% if maps_url %}
+          <br><a href="{{ maps_url }}" class="map-link" target="_blank" rel="noopener noreferrer">📍 View on map</a>
+        {% endif %}
+      </dd>
+    </div>
+    {% elif event.street_address %}
+    <div class="event-meta-row">
+      <dt>Address</dt>
+      <dd>
+        {{ event.street_address }}
+        {% if maps_url %}
+          <br><a href="{{ maps_url }}" class="map-link" target="_blank" rel="noopener noreferrer">📍 View on map</a>
+        {% endif %}
+      </dd>
+    </div>
+    {% endif %}
+
+    {% if event.arrival_datetime %}
+    <div class="event-meta-row">
+      <dt>Arrive by</dt>
+      <dd>{{ event.arrival_datetime.strftime("%-I:%M %p") }}</dd>
+    </div>
+    {% endif %}
+
+    {% if event.description %}
+    <div class="event-meta-row event-meta-notes">
+      <dt>Instructions / Notes</dt>
+      <dd>{{ event.description }}</dd>
+    </div>
+    {% endif %}
+
+  </dl>
+</div>
+
+{# ── Results section (completed events) ──────────────────────────── #}
+{% if event.status.value == 'completed' %}
+<section class="event-results-section" aria-labelledby="results-heading">
+  <h2 id="results-heading">Results</h2>
+
+  {% if completed_results or other_results %}
+
+  <div class="table-wrap">
+    <table class="table-stack event-results-table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Student</th>
+          <th scope="col">Time</th>
+          <th scope="col">Status</th>
+          <th scope="col">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {# Completed results sorted fastest first #}
+        {% for result in completed_results %}
+        <tr class="result-row-completed">
+          <td data-label="#">
+            {% if result.placement %}{{ result.placement }}
+            {% else %}{{ loop.index }}{% endif %}
+          </td>
+          <td data-label="Student">
+            <a href="/students/{{ result.student.slug }}">{{ result.student.public_display_name }}</a>
+          </td>
+          <td data-label="Time">
+            <span class="time-display">{{ seconds_to_mmss(result.time_seconds) }}</span>
+          </td>
+          <td data-label="Status">
+            <span class="text-sm text-muted">Completed</span>
+          </td>
+          <td data-label="Notes">{{ result.notes or "" }}</td>
+        </tr>
+        {% endfor %}
+
+        {# Non-completed results listed after, with a divider if needed #}
+        {% if other_results and completed_results %}
+        <tr class="results-divider">
+          <td colspan="5" class="text-muted text-sm">— Other participants —</td>
+        </tr>
+        {% endif %}
+        {% for result in other_results %}
+        <tr class="result-row-other">
+          <td data-label="#">—</td>
+          <td data-label="Student">
+            <a href="/students/{{ result.student.slug }}">{{ result.student.public_display_name }}</a>
+          </td>
+          <td data-label="Time">
+            {% if result.time_seconds %}
+              <span class="time-display">{{ result.time_seconds|mmss }}</span>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td data-label="Status">
+            <span class="badge badge-meeting text-sm">{{ result_status_labels.get(result.status.value, result.status.value) }}</span>
+          </td>
+          <td data-label="Notes">{{ result.notes or "" }}</td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  {# Empty state: event is completed but no results entered #}
+  <div class="empty-state">
+    <p>Results have not been entered for this event.</p>
+  </div>
+  {% endif %}
+
+</section>
+{% elif is_future %}
+{# Upcoming event: no results yet #}
+<div class="event-upcoming-note text-muted text-sm mt-4">
+  <p>Results will appear here after the event.</p>
+</div>
+{% endif %}
+
+{# ── Back link ────────────────────────────────────────────────────── #}
+<div class="mt-4">
+  <a href="/events" class="btn btn-secondary">← All Events</a>
 </div>
 {% endblock %}

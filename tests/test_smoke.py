@@ -60,8 +60,9 @@ async def test_events_page(client):
 
 @pytest.mark.asyncio
 async def test_event_detail_page(client):
+    # Non-existent slug returns 404 (correct HTTP behaviour)
     r = await client.get("/events/some-event-2026-01-01")
-    assert r.status_code == 200
+    assert r.status_code == 404
 
 
 @pytest.mark.asyncio

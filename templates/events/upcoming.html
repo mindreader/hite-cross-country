@@ -2,9 +2,104 @@
 {% block title %}Upcoming Events — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>Upcoming Events</h1>
-<p class="text-muted">Placeholder — Phase 2 (events agent) will list future events in chronological order here.</p>
-<div class="empty-state">
-  <p>There are currently no upcoming events scheduled.</p>
+<div class="page-header">
+  <h1>Upcoming Events</h1>
+  <a href="/calendar" class="btn btn-secondary">View Calendar</a>
 </div>
+
+{# ── Type filter ──────────────────────────────────────────────────── #}
+<nav class="filter-bar" aria-label="Filter by event type">
+  <a href="/upcoming"
+     class="filter-chip {% if not current_type %}active{% endif %}">All</a>
+  {% for val, label in type_labels.items() %}
+  <a href="/upcoming?type={{ val }}"
+     class="filter-chip {% if current_type == val %}active{% endif %}">{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{# ── Event list ───────────────────────────────────────────────────── #}
+{% if events %}
+  <ul class="event-list" aria-label="Upcoming events">
+  {% for event in events %}
+    <li class="event-card {% if event.status.value == 'cancelled' %}event-card--cancelled{% elif event.status.value == 'postponed' %}event-card--postponed{% endif %}">
+
+      {# Status banners for cancelled/postponed #}
+      {% if event.status.value == 'cancelled' %}
+      <div class="event-status-banner banner-cancelled" role="alert">
+        ❌ This event has been <strong>cancelled</strong>.
+      </div>
+      {% elif event.status.value == 'postponed' %}
+      <div class="event-status-banner banner-postponed" role="alert">
+        ⚠️ This event has been <strong>postponed</strong>. Schedule may change.
+      </div>
+      {% endif %}
+
+      <div class="event-card-header">
+        <a href="/events/{{ event.slug }}" class="event-name">{{ event.name }}</a>
+        {# Type badge #}
+        {% if event.type.value == 'race' %}
+          <span class="badge badge-race">Race</span>
+        {% elif event.type.value == 'practice' %}
+          <span class="badge badge-practice">Practice</span>
+        {% elif event.type.value == 'team_meeting' %}
+          <span class="badge badge-meeting">Team Meeting</span>
+        {% else %}
+          <span class="badge badge-meeting">{{ type_labels.get(event.type.value, event.type.value) }}</span>
+        {% endif %}
+      </div>
+
+      <dl class="event-meta">
+        <div class="event-meta-row">
+          <dt>Date</dt>
+          <dd>{{ event.start_datetime.strftime("%-m/%-d/%Y") }}</dd>
+        </div>
+        <div class="event-meta-row">
+          <dt>Start</dt>
+          <dd>{{ event.start_datetime.strftime("%-I:%M %p") }}</dd>
+        </div>
+        {% if event.end_datetime %}
+        <div class="event-meta-row">
+          <dt>End</dt>
+          <dd>{{ event.end_datetime.strftime("%-I:%M %p") }}</dd>
+        </div>
+        {% endif %}
+        {% if event.location_name %}
+        <div class="event-meta-row">
+          <dt>Location</dt>
+          <dd>{{ event.location_name }}</dd>
+        </div>
+        {% endif %}
+        {% if event.distance_label %}
+        <div class="event-meta-row">
+          <dt>Distance</dt>
+          <dd>{{ event.distance_label }}</dd>
+        </div>
+        {% endif %}
+        {% if event.arrival_datetime %}
+        <div class="event-meta-row">
+          <dt>Arrive by</dt>
+          <dd>{{ event.arrival_datetime.strftime("%-I:%M %p") }}</dd>
+        </div>
+        {% endif %}
+        {% if event.description %}
+        <div class="event-meta-row event-meta-notes">
+          <dt>Notes</dt>
+          <dd>{{ event.description }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </li>
+  {% endfor %}
+  </ul>
+
+{% else %}
+  <div class="empty-state">
+    {% if current_type %}
+      <p>No upcoming {{ type_labels.get(current_type, current_type)|lower }} events scheduled.</p>
+      <a href="/upcoming" class="btn btn-secondary mt-4">View all upcoming events</a>
+    {% else %}
+      <p>There are currently no upcoming events scheduled.</p>
+    {% endif %}
+  </div>
+{% endif %}
 {% endblock %}

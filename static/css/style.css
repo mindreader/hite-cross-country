@@ -636,4 +636,380 @@ th { font-weight: 600; background: var(--bg-subtle); }
     margin-left: 0;
     order: -1;
   }
+||||||| 2e9fee3
+/* ═══════════════════════════════════════════════════════════════════
+   EVENTS / CALENDAR PAGES  (app/routers/events.py)
+   Added by events agent — Phase 2.  All new selectors are prefixed
+   .event-*, .cal-*, .agenda-*, .filter-* to avoid collisions.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Page header row (title + action button side-by-side) ─────────── */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.page-header h1 { margin: 0; }
+
+/* ── Section headings ─────────────────────────────────────────────── */
+
+.section-heading {
+  font-size: var(--text-xl);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+/* ── Filter bar (type / view chips) ──────────────────────────────── */
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.filter-bar--secondary { margin-top: calc(-1 * var(--sp-2)); }
+
+.filter-chip {
+  display: inline-block;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 36px;
+  line-height: 1.8;
+}
+.filter-chip:hover { background: var(--bg-subtle); text-decoration: none; }
+.filter-chip.active {
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  border-color: var(--color-primary);
+}
+.filter-chip--sm {
+  font-size: calc(var(--text-sm) - 0.05rem);
+  padding: var(--sp-1) var(--sp-2);
+  min-height: 32px;
+}
+
+/* ── Filter form (event list dropdowns) ──────────────────────────── */
+
+.filter-form { margin-bottom: var(--sp-6); }
+.filter-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.filter-label {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+.filter-form select {
+  width: auto;
+  min-width: 10rem;
+}
+.filter-clear { font-size: var(--text-sm); }
+
+/* ── Event card (used on /upcoming and /calendar agenda) ─────────── */
+
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.event-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-3);
+}
+
+.event-card--cancelled {
+  opacity: 0.75;
+  border-color: var(--neutral-border);
+  background: var(--neutral-bg);
+}
+
+.event-card--postponed {
+  border-color: var(--postponed-text);
+  background: var(--postponed-bg);
+}
+
+/* Compact card for agenda rows */
+.event-card--compact {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.event-status-banner {
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  margin-bottom: var(--sp-3);
+}
+.banner-cancelled { background: var(--cancelled-bg); color: var(--cancelled-text); }
+.banner-postponed { background: var(--postponed-bg); color: var(--postponed-text); }
+
+.event-card-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+.event-name {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  flex: 1;
+}
+
+/* ── Event meta dl ────────────────────────────────────────────────── */
+
+.event-meta { margin: 0; }
+
+.event-meta-row {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-1) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-sm);
+}
+.event-meta-row:last-child { border-bottom: none; }
+
+.event-meta dt {
+  min-width: 6rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.event-meta dd { margin: 0; }
+
+.event-meta-notes dt,
+.event-meta-notes dd { align-self: flex-start; }
+
+/* Larger meta on detail page */
+.event-meta--detail .event-meta-row { font-size: var(--text-base); }
+.event-meta--detail dt { min-width: 8rem; }
+
+/* ── Event detail page ────────────────────────────────────────────── */
+
+.event-detail-header {
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-4);
+}
+
+.event-detail-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.event-detail-title { margin: 0; flex: 1; }
+
+.event-cancellation-notice,
+.event-postponed-notice {
+  margin-bottom: var(--sp-4);
+  font-size: var(--text-base);
+}
+
+.event-detail-info {
+  margin-bottom: var(--sp-6);
+}
+
+.map-link { font-size: var(--text-sm); }
+
+/* Results table */
+.event-results-section { margin-top: var(--sp-6); }
+.event-results-table .time-display { font-size: var(--text-base); }
+
+.results-divider td {
+  text-align: center;
+  padding: var(--sp-2);
+  background: var(--bg-subtle);
+  font-style: italic;
+}
+
+.row-cancelled td { color: var(--text-muted); text-decoration: line-through; }
+.row-postponed td { color: var(--postponed-text); }
+
+/* ── Agenda view (calendar page) ──────────────────────────────────── */
+
+.agenda-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 3rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.agenda-month {
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.agenda-day {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.agenda-body { flex: 1; }
+
+.agenda-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+  font-size: var(--text-sm);
+}
+
+.agenda-time { color: var(--text-muted); }
+
+/* ── Calendar month section header & navigation ──────────────────── */
+
+.cal-section-title {
+  font-size: var(--text-xl);
+  margin-bottom: var(--sp-4);
+}
+
+.cal-month-section { margin-bottom: var(--sp-8); }
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.cal-month-title {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-xl);
+}
+
+.cal-nav-btn {
+  padding: var(--sp-1) var(--sp-3);
+  min-height: 36px;
+  font-size: var(--text-lg);
+  line-height: 1.4;
+}
+
+.cal-today-btn { font-size: var(--text-sm); }
+
+/* ── Calendar grid ────────────────────────────────────────────────── */
+
+.cal-grid {
+  table-layout: fixed;
+  min-width: 22rem;
+}
+
+.cal-grid th {
+  text-align: center;
+  font-size: var(--text-sm);
+  padding: var(--sp-2) var(--sp-1);
+  background: var(--bg-subtle);
+}
+
+.cal-day {
+  vertical-align: top;
+  height: 5rem;
+  padding: var(--sp-1);
+  border: 1px solid var(--border);
+  font-size: var(--text-sm);
+}
+
+.cal-day--empty { background: var(--bg-subtle); }
+
+.cal-day--today { background: var(--color-primary-light); }
+.cal-day--today .cal-day-num { font-weight: 700; color: var(--color-primary); }
+
+.cal-day-num {
+  display: block;
+  text-align: right;
+  font-size: var(--text-sm);
+  margin-bottom: var(--sp-1);
+  color: var(--text-muted);
+}
+
+.cal-day-events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Event chips inside calendar cells */
+.cal-event-chip {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px var(--sp-1);
+  border-radius: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+  text-decoration: none;
+}
+.cal-event-chip:hover { opacity: 0.85; text-decoration: underline; }
+
+.cal-chip-race    { background: var(--race-bg); border-left: 3px solid var(--race-border); color: var(--race-text); }
+.cal-chip-practice { background: var(--practice-bg); border-left: 3px solid var(--practice-border); color: var(--practice-text); }
+.cal-chip-other   { background: var(--neutral-bg); border-left: 3px solid var(--neutral-border); }
+.cal-chip-cancelled { opacity: 0.55; text-decoration: line-through; }
+
+/* ── Responsive: month grid hidden on small screens ──────────────── */
+/*
+ * Design: agenda is the default for small screens (phones).
+ * When view=month, the month grid is shown; the agenda is hidden on wide.
+ * On narrow screens (< 640 px), the month grid is ALWAYS hidden
+ * regardless of ?view= param to keep it readable.
+ */
+
+/* "cal-hidden-on-small" = show on wide, hidden on mobile */
+@media (max-width: 640px) {
+  .cal-hidden-on-small { display: none !important; }
+}
+
+/* "cal-hidden-on-wide" = show on mobile, hidden on desktop (when view=month) */
+@media (min-width: 641px) {
+  .cal-hidden-on-wide { display: none !important; }
+}
+
+/* ── Utility additions ────────────────────────────────────────────── */
+.mt-8 { margin-top: var(--sp-8); }
+/* Screen-reader only (used for accessible badge labels) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
