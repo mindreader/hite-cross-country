@@ -636,7 +636,8 @@ th { font-weight: 600; background: var(--bg-subtle); }
     margin-left: 0;
     order: -1;
   }
-||||||| 2e9fee3
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    EVENTS / CALENDAR PAGES  (app/routers/events.py)
    Added by events agent — Phase 2.  All new selectors are prefixed
