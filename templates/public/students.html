@@ -2,9 +2,80 @@
 {% block title %}Students — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
+
 <h1>Student Directory</h1>
-<p class="text-muted">Placeholder — Phase 2 (public agent) will add search and alphabetical listing here.</p>
+
+{# ── Search + grade filter ── #}
+<section class="card mb-6">
+  <form action="/students" method="get" role="search" class="pub-students-filter">
+    <div class="pub-search-row">
+      <label for="dir-search" class="visually-hidden">Search students by name</label>
+      <input
+        id="dir-search"
+        type="search"
+        name="q"
+        value="{{ q }}"
+        placeholder="Search by name…"
+        autocomplete="off"
+        aria-label="Search students by name"
+        class="pub-search-input"
+      >
+
+      {% if grade_options %}
+      <label for="dir-grade" class="visually-hidden">Filter by grade</label>
+      <select id="dir-grade" name="grade" class="pub-grade-select" aria-label="Filter by grade">
+        <option value="">All grades</option>
+        {% for g in grade_options %}
+        <option value="{{ g }}" {% if grade == g %}selected{% endif %}>Grade {{ g }}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+
+      <button type="submit" class="btn btn-primary pub-search-btn">Search</button>
+
+      {% if q or grade %}
+      <a href="/students" class="btn btn-secondary">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+{# ── Result count when filtering ── #}
+{% if q or grade is not none %}
+<p class="text-muted text-sm mb-4">
+  {% if students %}
+    {{ students|length }} student{{ 's' if students|length != 1 }} found
+    {% if q %} matching "<strong>{{ q }}</strong>"{% endif %}
+    {% if grade is not none %} in grade <strong>{{ grade }}</strong>{% endif %}.
+  {% endif %}
+</p>
+{% endif %}
+
+{# ── Student list ── #}
+{% if students %}
+<ul class="pub-student-list" aria-label="Student directory">
+  {% for s in students %}
+  <li class="pub-student-item">
+    <a href="/students/{{ s.slug }}" class="pub-student-link">
+      <span class="pub-student-name">{{ s.public_display_name }}</span>
+      {% if s.grade %}
+      <span class="pub-student-grade text-muted text-sm">Grade {{ s.grade }}</span>
+      {% endif %}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+
+{% elif q or grade is not none %}
 <div class="empty-state">
-  <p>Student directory coming soon.</p>
+  <p>No students matched your search.</p>
+  <a href="/students" class="btn btn-secondary mt-4">Show all students</a>
 </div>
+
+{% else %}
+<div class="empty-state">
+  <p>No students are listed yet.</p>
+</div>
+{% endif %}
+
 {% endblock %}

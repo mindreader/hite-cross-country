@@ -360,3 +360,280 @@ th { font-weight: 600; background: var(--bg-subtle); }
   font-size: var(--text-xl);
   font-weight: 700;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PUBLIC PAGES — added by public-router agent
+   Styles for /, /students, /students/{slug}
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Visually hidden (accessible) ─────────────────────────────────────── */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Home: hero intro card ─────────────────────────────────────────────── */
+
+.pub-hero {
+  text-align: center;
+  padding: var(--sp-8) var(--sp-6);
+}
+
+.pub-hero__title {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--sp-2);
+}
+
+.pub-hero__intro {
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+/* ── Shared: search row ────────────────────────────────────────────────── */
+
+.pub-search-row {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.pub-search-input {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.pub-search-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.pub-grade-select {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+/* ── Home: upcoming-events list ────────────────────────────────────────── */
+
+.pub-event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pub-event-item {
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+.pub-event-item:last-child { border-bottom: none; }
+
+.pub-event-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-1);
+}
+
+.pub-event-name {
+  font-weight: 600;
+  font-size: var(--text-lg);
+}
+
+.pub-event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.pub-event-meta dt { display: none; }  /* visual-only; screen readers get visually-hidden */
+.pub-event-meta dd { margin: 0; }
+
+.pub-event-links {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+/* ── Student directory ─────────────────────────────────────────────────── */
+
+.pub-students-filter { }
+
+.pub-student-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pub-student-item {
+  border-bottom: 1px solid var(--border);
+}
+.pub-student-item:last-child { border-bottom: none; }
+
+.pub-student-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-3) var(--sp-2);
+  color: var(--text);
+  text-decoration: none;
+  gap: var(--sp-4);
+}
+.pub-student-link:hover {
+  background: var(--bg-subtle);
+  text-decoration: underline;
+}
+
+.pub-student-name {
+  font-weight: 500;
+  font-size: var(--text-lg);
+}
+
+.pub-student-grade {
+  white-space: nowrap;
+}
+
+/* ── Student detail: header ────────────────────────────────────────────── */
+
+.pub-student-header {
+  padding: var(--sp-6);
+}
+
+.pub-student-hero-name {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--sp-1);
+}
+
+.pub-summary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+  margin: var(--sp-4) 0 0;
+}
+
+.pub-summary-item dt {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pub-summary-item dd {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+/* ── Progress graph ────────────────────────────────────────────────────── */
+
+.pub-graph-controls {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-4);
+}
+
+.pub-graph-controls .form-group {
+  margin-bottom: 0;
+  flex: 1 1 160px;
+}
+
+.pub-graph-wrap {
+  position: relative;
+  width: 100%;
+  max-height: 400px;
+  margin-bottom: var(--sp-4);
+}
+
+.pub-graph-table-toggle {
+  margin: var(--sp-2) 0 var(--sp-4);
+}
+
+/* ── Result cards ──────────────────────────────────────────────────────── */
+
+.pub-results-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pub-result-card {
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-3);
+  /* left border provided by .result-race / .result-practice / .result-other */
+}
+
+.pub-result-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.pub-result-type {
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pub-result-date {
+  margin-left: auto;
+}
+
+.pub-result-body {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.pub-result-event {
+  flex: 1 1 auto;
+}
+
+.pub-result-event-link {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text);
+}
+.pub-result-event-link:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.pub-result-time {
+  font-size: var(--text-2xl);
+  white-space: nowrap;
+}
+
+.pub-result-status {
+  font-size: var(--text-sm);
+}
+
+.pub-result-extra {
+  margin-top: var(--sp-2);
+}
+
+/* Mobile tweaks for result cards */
+@media (max-width: 480px) {
+  .pub-result-body {
+    flex-direction: column;
+  }
+  .pub-result-date {
+    margin-left: 0;
+    order: -1;
+  }
+}

@@ -1,10 +1,413 @@
 {% extends "base.html" %}
-{% block title %}{{ slug | replace('-', ' ') | title }} — Hite Elementary Cross Country{% endblock %}
+{% block title %}{{ student.public_display_name }} — Hite Elementary Cross Country{% endblock %}
+
+{% block head_extra %}
+{# Chart.js pinned to 4.4.4 via CDN — loaded only on student pages #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+        integrity="sha256-oWaLAVwdCeiKm1WBZAI1ubkF4dJi1rPGMI71xYlNkmo="
+        crossorigin="anonymous" defer></script>
+{% endblock %}
 
 {% block content %}
-<h1>Student Results</h1>
-<p class="text-muted">Placeholder — Phase 2 (public agent) will render the student header, results list, and progress graph here.</p>
-<div class="empty-state">
-  <p>No results have been recorded for this student yet.</p>
+
+{# ── Student header ── #}
+<div class="pub-student-header card mb-6">
+  <h1 class="pub-student-hero-name">{{ student.public_display_name }}</h1>
+
+  {% if student.grade %}
+  <p class="pub-student-grade text-muted">Grade {{ student.grade }}</p>
+  {% endif %}
+
+  {# Season summary #}
+  {% if completed_count > 0 %}
+  <dl class="pub-summary-grid">
+    <div class="pub-summary-item">
+      <dt>Events Recorded</dt>
+      <dd>{{ completed_count }}</dd>
+    </div>
+    {% if fastest_time is not none %}
+    <div class="pub-summary-item">
+      <dt>Fastest Time</dt>
+      <dd class="time-display">{{ fastest_time | mmss }}</dd>
+    </div>
+    {% endif %}
+    {% if most_recent %}
+    <div class="pub-summary-item">
+      <dt>Most Recent</dt>
+      <dd>
+        {{ most_recent.event.start_datetime.strftime('%b %-d') }}
+        — {{ most_recent.event.name }}
+        {% if most_recent.time_seconds is not none %}
+        <span class="time-display">{{ most_recent.time_seconds | mmss }}</span>
+        {% endif %}
+      </dd>
+    </div>
+    {% endif %}
+  </dl>
+  {% endif %}
 </div>
+
+{# ── Progress graph ── #}
+<section class="card mb-6" aria-labelledby="graph-heading">
+  <h2 id="graph-heading">Progress Graph</h2>
+  <p class="text-muted text-sm">Lower time = faster. Times are only comparable within the same distance.</p>
+
+  {% if graph_data_json and graph_data_json != '[]' %}
+
+  {# Distance selector and type filter #}
+  <div class="pub-graph-controls">
+    <div class="form-group">
+      <label for="dist-select">Distance</label>
+      <select id="dist-select" aria-label="Filter graph by distance">
+        <option value="all">All distances</option>
+        {% for d in distances %}
+        <option value="{{ d }}" {% if d == default_distance %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="type-select">Event type</label>
+      <select id="type-select" aria-label="Filter graph by event type">
+        <option value="all">All types</option>
+        <option value="race">Races only</option>
+        <option value="practice">Practices only</option>
+      </select>
+    </div>
+  </div>
+
+  {# Multi-distance warning (shown by JS when needed) #}
+  <div id="multi-dist-warning" class="alert alert-warning" role="alert" style="display:none;">
+    ⚠️ Times from different distances are not directly comparable.
+  </div>
+
+  <div class="pub-graph-wrap">
+    <canvas id="progress-chart" role="img" aria-label="Progress graph for {{ student.public_display_name }}"></canvas>
+  </div>
+
+  {# Accessible text table (toggleable) #}
+  <div class="pub-graph-table-toggle">
+    <button type="button" class="btn btn-secondary text-sm" id="toggle-table-btn"
+            aria-expanded="false" aria-controls="graph-table">
+      Show data table
+    </button>
+  </div>
+
+  <div id="graph-table" hidden>
+    <h3 class="visually-hidden">Graph data table</h3>
+    <div class="table-wrap">
+      <table class="table-stack" aria-label="Progress data for {{ student.public_display_name }}">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Event</th>
+            <th scope="col">Type</th>
+            <th scope="col">Distance</th>
+            <th scope="col">Time</th>
+          </tr>
+        </thead>
+        <tbody id="graph-table-body">
+          {# Populated by JS from the same data set #}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <p>More results are needed before a progress trend can be shown.</p>
+  </div>
+  {% endif %}
+</section>
+
+{# ── Results history ── #}
+<section aria-labelledby="results-heading">
+  <h2 id="results-heading">Results History</h2>
+
+  {% if results %}
+  <ul class="pub-results-list" aria-label="Results for {{ student.public_display_name }}">
+    {% for r in results %}
+    {% set evt = r.event %}
+    {# Pick visual class based on event type #}
+    {% if evt.type.value == 'race' %}
+      {% set result_class = 'result-race' %}
+    {% elif evt.type.value == 'practice' %}
+      {% set result_class = 'result-practice' %}
+    {% else %}
+      {% set result_class = 'result-other' %}
+    {% endif %}
+
+    <li class="card pub-result-card {{ result_class }}">
+      <div class="pub-result-header">
+        {# Type label in text (not color alone) #}
+        <span class="result-type pub-result-type">
+          {% if evt.type.value == 'race' %}Race
+          {% elif evt.type.value == 'practice' %}Practice
+          {% elif evt.type.value == 'team_meeting' %}Meeting
+          {% else %}Other{% endif %}
+        </span>
+        <span class="pub-result-date text-muted text-sm">
+          {{ evt.start_datetime.strftime('%B %-d, %Y') }}
+        </span>
+      </div>
+
+      <div class="pub-result-body">
+        <div class="pub-result-event">
+          <a href="/events/{{ evt.slug }}" class="pub-result-event-link">{{ evt.name }}</a>
+          {% if evt.distance_label %}
+          <span class="text-muted text-sm">· {{ evt.distance_label }}</span>
+          {% endif %}
+        </div>
+
+        <div class="pub-result-right">
+          {% if r.status.value == 'completed' and r.time_seconds is not none %}
+          <span class="time-display pub-result-time">{{ r.time_seconds | mmss }}</span>
+          {% else %}
+          <span class="text-muted pub-result-status">
+            {{ r.status.value | replace('_', ' ') | title }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if r.placement or r.notes %}
+      <div class="pub-result-extra text-sm text-muted">
+        {% if r.placement %}Place: {{ r.placement }}{% endif %}
+        {% if r.placement and r.notes %} · {% endif %}
+        {% if r.notes %}{{ r.notes }}{% endif %}
+      </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+
+  {% else %}
+  <div class="empty-state">
+    <p>No results have been recorded for this student yet.</p>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+{% if graph_data_json and graph_data_json != '[]' %}
+<script>
+(function () {
+  /* Sanitised server-rendered JSON — no XSS risk from user input */
+  const ALL_DATA = {{ graph_data_json | safe }};
+
+  /* ── Chart colours ── */
+  const RACE_COLOR     = '#dc2626';   /* --race-border */
+  const PRACTICE_COLOR = '#ca8a04';   /* --practice-border */
+  const RACE_FILL      = '#fee2e2';
+  const PRACTICE_FILL  = '#fef9c3';
+
+  /* ── DOM refs ── */
+  const distSelect = document.getElementById('dist-select');
+  const typeSelect = document.getElementById('type-select');
+  const warning    = document.getElementById('multi-dist-warning');
+  const toggleBtn  = document.getElementById('toggle-table-btn');
+  const tableDiv   = document.getElementById('graph-table');
+  const tableBody  = document.getElementById('graph-table-body');
+
+  /* ── Accessible table toggle ── */
+  toggleBtn.addEventListener('click', function () {
+    const hidden = tableDiv.hasAttribute('hidden');
+    tableDiv.toggleAttribute('hidden', !hidden);
+    this.setAttribute('aria-expanded', String(hidden));
+    this.textContent = hidden ? 'Hide data table' : 'Show data table';
+  });
+
+  /* ── Helpers ── */
+  function formatMmss(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function getFilteredData() {
+    const dist = distSelect.value;
+    const type = typeSelect.value;
+    return ALL_DATA.filter(function (d) {
+      const distOk = (dist === 'all') || (d.distance_label === dist);
+      const typeOk = (type === 'all') || (d.event_type === type);
+      return distOk && typeOk;
+    });
+  }
+
+  /* ── Multi-distance check ── */
+  function checkMultiDist(data) {
+    const dists = new Set(data.map(function (d) { return d.distance_label; }));
+    const multi = dists.size > 1;
+    warning.style.display = multi ? '' : 'none';
+  }
+
+  /* ── Build table rows ── */
+  function renderTable(data) {
+    tableBody.innerHTML = '';
+    data.forEach(function (d) {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td data-label="Date">' + d.date_label + '</td>' +
+        '<td data-label="Event">' + escHtml(d.event_name) + '</td>' +
+        '<td data-label="Type">' + ucFirst(d.event_type) + '</td>' +
+        '<td data-label="Distance">' + (d.distance_label || '—') + '</td>' +
+        '<td data-label="Time">' + d.time_label + '</td>';
+      tableBody.appendChild(tr);
+    });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function ucFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  /* ── Chart.js dataset building ── */
+  function buildDatasets(data) {
+    const races     = data.filter(function (d) { return d.event_type === 'race'; });
+    const practices = data.filter(function (d) { return d.event_type === 'practice'; });
+    const others    = data.filter(function (d) { return d.event_type !== 'race' && d.event_type !== 'practice'; });
+
+    function toPoint(d) {
+      return { x: d.date, y: d.time_seconds, meta: d };
+    }
+
+    const sets = [];
+    if (races.length) {
+      sets.push({
+        label: 'Race',
+        data: races.map(toPoint),
+        borderColor: RACE_COLOR,
+        backgroundColor: RACE_FILL,
+        pointStyle: 'circle',
+        pointRadius: 7,
+        pointHoverRadius: 10,
+        tension: 0.2,
+        showLine: true,
+      });
+    }
+    if (practices.length) {
+      sets.push({
+        label: 'Practice',
+        data: practices.map(toPoint),
+        borderColor: PRACTICE_COLOR,
+        backgroundColor: PRACTICE_FILL,
+        pointStyle: 'rectRot',   /* diamond */
+        pointRadius: 7,
+        pointHoverRadius: 10,
+        tension: 0.2,
+        showLine: true,
+      });
+    }
+    if (others.length) {
+      sets.push({
+        label: 'Other',
+        data: others.map(toPoint),
+        borderColor: '#9ca3af',
+        backgroundColor: '#f3f4f6',
+        pointStyle: 'triangle',
+        pointRadius: 7,
+        pointHoverRadius: 10,
+        tension: 0.2,
+        showLine: true,
+      });
+    }
+    return sets;
+  }
+
+  /* ── Initial chart ── */
+  const ctx = document.getElementById('progress-chart').getContext('2d');
+
+  let chart = null;
+
+  function renderChart() {
+    const data = getFilteredData();
+
+    if (data.length < 2) {
+      if (chart) { chart.destroy(); chart = null; }
+      document.getElementById('progress-chart').style.display = 'none';
+      /* Show inline note */
+      let note = document.getElementById('few-points-note');
+      if (!note) {
+        note = document.createElement('p');
+        note.id = 'few-points-note';
+        note.className = 'empty-state';
+        note.textContent = 'More results are needed before a progress trend can be shown.';
+        document.getElementById('progress-chart').insertAdjacentElement('afterend', note);
+      }
+      note.style.display = '';
+    } else {
+      document.getElementById('progress-chart').style.display = '';
+      const old = document.getElementById('few-points-note');
+      if (old) old.style.display = 'none';
+
+      const datasets = buildDatasets(data);
+      if (!chart) {
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: { datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            parsing: false,
+            scales: {
+              x: {
+                type: 'category',
+                title: { display: true, text: 'Date' },
+                ticks: {
+                  callback: function (_val, idx, _ticks) {
+                    return data[idx] ? data[idx].date_label : '';
+                  }
+                }
+              },
+              y: {
+                title: { display: true, text: 'Time (lower is faster)' },
+                ticks: {
+                  callback: function (val) { return formatMmss(val); }
+                },
+                /* Do NOT reverse axis — lower values are already better
+                   and sit lower on the chart; a note says "lower is faster" */
+              }
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  title: function (items) {
+                    const m = items[0].raw.meta;
+                    return m.event_name + ' · ' + m.date_label;
+                  },
+                  label: function (item) {
+                    const m = item.raw.meta;
+                    const lines = [
+                      'Type: ' + ucFirst(m.event_type),
+                      'Time: ' + m.time_label,
+                    ];
+                    if (m.distance_label) lines.push('Distance: ' + m.distance_label);
+                    return lines;
+                  }
+                }
+              },
+              legend: { display: true }
+            }
+          }
+        });
+      } else {
+        chart.data.datasets = datasets;
+        chart.update();
+      }
+    }
+
+    checkMultiDist(data);
+    renderTable(data);
+  }
+
+  distSelect.addEventListener('change', renderChart);
+  typeSelect.addEventListener('change', renderChart);
+
+  renderChart();
+})();
+</script>
+{% endif %}
 {% endblock %}
