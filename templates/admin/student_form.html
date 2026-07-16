@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}{% if student_id is defined %}Edit Student{% else %}Add Student{% endif %} — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<h1>{% if student_id is defined %}Edit Student{% else %}Add Student{% endif %}</h1>
+<p class="text-muted">Placeholder — Phase 2 (admin agent) will render the student form here.</p>
+{% endblock %}

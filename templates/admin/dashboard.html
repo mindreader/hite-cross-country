@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Coach Dashboard — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<h1>Coach Dashboard</h1>
+
+<div class="card">
+  <h2>Quick Actions</h2>
+  <p>
+    <a href="/coach/events/new" class="btn btn-primary">Create Event</a>
+    <a href="/coach/students/new" class="btn btn-secondary" style="margin-left:var(--sp-2)">Add Student</a>
+  </p>
+</div>
+
+<div class="card">
+  <h2>Manage</h2>
+  <ul>
+    <li><a href="/coach/students">Manage Students</a></li>
+    <li><a href="/coach/events">Manage Events</a></li>
+    <li><a href="/upcoming">View Upcoming Events</a></li>
+  </ul>
+</div>
+
+<form method="post" action="/coach/logout" style="margin-top:var(--sp-6)">
+  <button type="submit" class="btn btn-secondary">Log Out</button>
+</form>
+{% endblock %}

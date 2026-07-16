@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Coach Login — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<div style="max-width: 24rem; margin: var(--sp-8) auto;">
+  <h1>Coach Login</h1>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="/coach/login">
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required autofocus>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%">Log In</button>
+  </form>
+</div>
+{% endblock %}

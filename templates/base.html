@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Hite Elementary Cross Country{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="site-title">🏃 Hite Elementary Cross Country</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <nav class="site-nav" id="site-nav">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/students">Students</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/calendar">Calendar</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; Hite Elementary Cross Country</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile nav toggle
+    document.querySelector('.nav-toggle')?.addEventListener('click', function() {
+      const nav = document.getElementById('site-nav');
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !expanded);
+      nav.classList.toggle('open');
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

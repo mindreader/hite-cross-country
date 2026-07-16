@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Home — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<h1>Hite Elementary Cross Country</h1>
+<p>View practice times, race results, student progress, and upcoming events for the Hite Elementary cross country team.</p>
+
+<section class="card">
+  <h2>Find a Student</h2>
+  <p class="text-muted">Search or browse the student directory.</p>
+  <a href="/students" class="btn btn-primary">View Students</a>
+</section>
+
+<section class="card">
+  <h2>Upcoming Events</h2>
+  <p class="text-muted">Placeholder — Phase 2 will populate upcoming events here.</p>
+  <a href="/upcoming" class="btn btn-secondary">View All Upcoming Events</a>
+  <a href="/calendar" class="btn btn-secondary" style="margin-left:var(--sp-2)">Full Calendar</a>
+</section>
+{% endblock %}

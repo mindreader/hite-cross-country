@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ slug | replace('-', ' ') | title }} — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<h1>Student Results</h1>
+<p class="text-muted">Placeholder — Phase 2 (public agent) will render the student header, results list, and progress graph here.</p>
+<div class="empty-state">
+  <p>No results have been recorded for this student yet.</p>
+</div>
+{% endblock %}
