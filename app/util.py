@@ -122,3 +122,76 @@ def is_upcoming(dt: datetime) -> bool:
 def is_past(dt: datetime) -> bool:
     """True if the (naive-local) datetime is in the past."""
     return dt <= now_local()
+
+
+# ── Event helpers ──────────────────────────────────────────────────────
+
+
+def event_cutoff_dt(event) -> datetime:
+    """Return the datetime used to decide if an event is in the past.
+
+    An event is considered *past* once its ``end_datetime`` (if set) has
+    passed; otherwise its ``start_datetime`` is the cutoff.  This means
+    an in-progress event (started but not yet ended) is still treated as
+    upcoming/present.  Use ``now_local()`` to compare.
+    """
+    return event.end_datetime if event.end_datetime else event.start_datetime
+
+
+# ── Calendar helpers ───────────────────────────────────────────────────
+
+import calendar as _cal_module  # noqa: E402 — stdlib, fine at module level
+
+_MONTH_NAMES = [
+    "", "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+]
+
+_DAY_ABBREVS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+
+def build_month_grid(year: int, month: int, events: list) -> list:
+    """Build a calendar grid for ``year``/``month`` with events.
+
+    Returns a list of weeks; each week is a list of
+    ``(day_number, events_list)`` tuples where ``day_number == 0``
+    indicates padding (days outside the current month).
+
+    Only events whose ``start_datetime`` falls in ``year``/``month``
+    are included in the grid cells.
+    """
+    raw_grid = _cal_module.monthcalendar(year, month)
+    day_map: dict[int, list] = {}
+    for evt in events:
+        dt = evt.start_datetime
+        if dt.year == year and dt.month == month:
+            day_map.setdefault(dt.day, []).append(evt)
+
+    return [
+        [(d, day_map.get(d, [])) for d in week]
+        for week in raw_grid
+    ]
+
+
+def prev_month(year: int, month: int) -> tuple:
+    """Return ``(year, month)`` for the month before the given one."""
+    if month == 1:
+        return year - 1, 12
+    return year, month - 1
+
+
+def next_month(year: int, month: int) -> tuple:
+    """Return ``(year, month)`` for the month after the given one."""
+    if month == 12:
+        return year + 1, 1
+    return year, month + 1
+
+
+def month_name(month: int) -> str:
+    """Return the full English name for a month number (1–12)."""
+    return _MONTH_NAMES[month]
+
+
+def calendar_day_abbrevs() -> list:
+    """Return the list of day abbreviations starting Monday."""
+    return _DAY_ABBREVS

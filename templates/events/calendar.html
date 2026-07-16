@@ -2,9 +2,150 @@
 {% block title %}Calendar — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>Calendar</h1>
-<p class="text-muted">Placeholder — Phase 2 (events agent) will render month and agenda views here.</p>
-<div class="empty-state">
-  <p>Calendar coming soon.</p>
+<div class="page-header">
+  <h1>Calendar</h1>
+  <a href="/upcoming" class="btn btn-secondary">Upcoming Events</a>
 </div>
+
+{# ── View toggle ──────────────────────────────────────────────────── #}
+{# View is chosen via ?view=month or ?view=agenda (default).
+   On small screens (< 768 px) the month grid is hidden by CSS even if
+   view=month is requested; the agenda always remains accessible.        #}
+<nav class="filter-bar" aria-label="Calendar view">
+  <a href="/calendar?view=agenda{% if current_type %}&type={{ current_type }}{% endif %}&y={{ cal_year }}&m={{ cal_month }}"
+     class="filter-chip {% if view == 'agenda' %}active{% endif %}">📋 Agenda</a>
+  <a href="/calendar?view=month{% if current_type %}&type={{ current_type }}{% endif %}&y={{ cal_year }}&m={{ cal_month }}"
+     class="filter-chip {% if view == 'month' %}active{% endif %}">📅 Month</a>
+</nav>
+
+{# ── Type filter ──────────────────────────────────────────────────── #}
+<nav class="filter-bar filter-bar--secondary" aria-label="Filter by event type">
+  <a href="/calendar?view={{ view }}&y={{ cal_year }}&m={{ cal_month }}"
+     class="filter-chip filter-chip--sm {% if not current_type %}active{% endif %}">All</a>
+  {% for val, label in type_labels.items() %}
+  <a href="/calendar?view={{ view }}&y={{ cal_year }}&m={{ cal_month }}&type={{ val }}"
+     class="filter-chip filter-chip--sm {% if current_type == val %}active{% endif %}">{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{# ════════════════════════════════════════════════════════════════════
+   MONTH VIEW  (always rendered; hidden by CSS on small screens when
+               view=agenda, and always hidden on narrow viewports)
+   ════════════════════════════════════════════════════════════════════ #}
+<section class="cal-month-section {% if view == 'agenda' %}cal-hidden-on-small{% endif %}"
+         aria-label="Month view">
+
+  {# Month navigation #}
+  <div class="cal-nav">
+    <a href="/calendar?view={{ view }}{% if current_type %}&type={{ current_type }}{% endif %}&y={{ prev_y }}&m={{ prev_m }}"
+       class="btn btn-secondary cal-nav-btn" aria-label="Previous month">‹</a>
+
+    <h2 class="cal-month-title">{{ cal_month_name }} {{ cal_year }}</h2>
+
+    <a href="/calendar?view={{ view }}{% if current_type %}&type={{ current_type }}{% endif %}&y={{ next_y }}&m={{ next_m }}"
+       class="btn btn-secondary cal-nav-btn" aria-label="Next month">›</a>
+
+    {% if cal_year != now_year or cal_month != now_month %}
+    <a href="/calendar?view={{ view }}{% if current_type %}&type={{ current_type }}{% endif %}"
+       class="btn btn-secondary cal-nav-btn cal-today-btn">Today</a>
+    {% endif %}
+  </div>
+
+  {# Calendar grid #}
+  <div class="table-wrap">
+    <table class="cal-grid" aria-label="{{ cal_month_name }} {{ cal_year }}">
+      <thead>
+        <tr>
+          {% for abbr in day_abbrevs %}
+          <th scope="col">{{ abbr }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for week in cal_grid %}
+        <tr>
+          {% for day, day_events in week %}
+          <td class="cal-day {% if day == 0 %}cal-day--empty{% endif %} {% if day == now_day and cal_month == now_month and cal_year == now_year %}cal-day--today{% endif %}">
+            {% if day %}
+            <span class="cal-day-num">{{ day }}</span>
+            <ul class="cal-day-events">
+              {% for event in day_events %}
+              <li>
+                <a href="/events/{{ event.slug }}"
+                   class="cal-event-chip
+                          {% if event.type.value == 'race' %}cal-chip-race
+                          {% elif event.type.value == 'practice' %}cal-chip-practice
+                          {% else %}cal-chip-other{% endif %}
+                          {% if event.status.value == 'cancelled' %}cal-chip-cancelled{% endif %}"
+                   title="{{ event.name }} — {{ status_labels.get(event.status.value, '') }}">
+                  {{ event.name }}
+                  {% if event.status.value == 'cancelled' %}<span class="sr-only">(cancelled)</span>{% endif %}
+                  {% if event.status.value == 'postponed' %}<span class="sr-only">(postponed)</span>{% endif %}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{# ════════════════════════════════════════════════════════════════════
+   AGENDA VIEW  (always rendered; hidden when view=month on wide screens)
+   ════════════════════════════════════════════════════════════════════ #}
+<section class="cal-agenda-section {% if view == 'month' %}cal-hidden-on-wide{% endif %}"
+         aria-label="Agenda view">
+
+  <h2 class="cal-section-title">Upcoming Events</h2>
+
+  {% if agenda_events %}
+  <ul class="event-list">
+    {% for event in agenda_events %}
+    <li class="event-card event-card--compact {% if event.status.value == 'cancelled' %}event-card--cancelled{% elif event.status.value == 'postponed' %}event-card--postponed{% endif %}">
+      <div class="agenda-date">
+        <span class="agenda-month">{{ event.start_datetime.strftime("%b") }}</span>
+        <span class="agenda-day">{{ event.start_datetime.strftime("%-d") }}</span>
+      </div>
+      <div class="agenda-body">
+        <a href="/events/{{ event.slug }}" class="event-name">{{ event.name }}</a>
+        <div class="agenda-meta">
+          <span class="agenda-time">{{ event.start_datetime.strftime("%-I:%M %p") }}</span>
+          {% if event.type.value == 'race' %}
+            <span class="badge badge-race">Race</span>
+          {% elif event.type.value == 'practice' %}
+            <span class="badge badge-practice">Practice</span>
+          {% elif event.type.value == 'team_meeting' %}
+            <span class="badge badge-meeting">Team Meeting</span>
+          {% else %}
+            <span class="badge badge-meeting">{{ type_labels.get(event.type.value, event.type.value) }}</span>
+          {% endif %}
+          {% if event.status.value == 'cancelled' %}
+            <span class="badge badge-cancelled">Cancelled</span>
+          {% elif event.status.value == 'postponed' %}
+            <span class="badge badge-postponed">Postponed</span>
+          {% endif %}
+          {% if event.location_name %}
+            <span class="text-muted text-sm">📍 {{ event.location_name }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty-state">
+    {% if current_type %}
+      <p>No upcoming {{ type_labels.get(current_type, current_type)|lower }} events.</p>
+      <a href="/calendar?view={{ view }}" class="btn btn-secondary mt-4">Clear filter</a>
+    {% else %}
+      <p>There are currently no upcoming events scheduled.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
 {% endblock %}
