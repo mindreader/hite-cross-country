@@ -13,6 +13,7 @@ _tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
 _tmp.close()
 os.environ["HITE_DB_PATH"] = _tmp.name
 os.environ["HITE_SESSION_SECRET"] = "test-secret-not-for-prod"
+os.environ["HITE_SNAPSHOT_INTERVAL_SECS"] = "0"  # disable backup worker during tests
 
 
 @pytest.fixture(scope="session")

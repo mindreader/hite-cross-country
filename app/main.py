@@ -47,7 +47,11 @@ async def lifespan(app: FastAPI):
     db.init_db()
     auth.init_auth()
     _setup_jinja_globals()
+    # Start periodic SQLite snapshot worker (disabled when interval == 0)
+    from app import backup
+    backup.start_snapshot_worker()
     yield
+    backup.stop_snapshot_worker()
     log.info("Shutting down Hite XC.")
 
 
