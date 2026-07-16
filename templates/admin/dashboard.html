@@ -2,26 +2,131 @@
 {% block title %}Coach Dashboard — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>Coach Dashboard</h1>
+<div class="admin-header">
+  <h1>Coach Dashboard</h1>
+  <form method="post" action="/coach/logout" style="display:inline;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit" class="btn btn-secondary btn-sm">Log Out</button>
+  </form>
+</div>
 
-<div class="card">
+{% if flash_msg %}
+<div class="alert alert-{{ flash_type }}" role="alert">{{ flash_msg }}</div>
+{% endif %}
+
+{# ── Quick actions ── #}
+<section class="admin-section">
   <h2>Quick Actions</h2>
-  <p>
-    <a href="/coach/events/new" class="btn btn-primary">Create Event</a>
-    <a href="/coach/students/new" class="btn btn-secondary" style="margin-left:var(--sp-2)">Add Student</a>
-  </p>
-</div>
+  <div class="admin-action-grid">
+    <a href="/coach/events/new" class="card admin-action-card">
+      <span class="admin-action-icon">📅</span>
+      <span>Create Event</span>
+    </a>
+    <a href="/coach/events" class="card admin-action-card">
+      <span class="admin-action-icon">📋</span>
+      <span>Manage Events</span>
+    </a>
+    <a href="/coach/students" class="card admin-action-card">
+      <span class="admin-action-icon">👥</span>
+      <span>Manage Students</span>
+    </a>
+    <a href="/coach/students/new" class="card admin-action-card">
+      <span class="admin-action-icon">➕</span>
+      <span>Add Student</span>
+    </a>
+  </div>
+</section>
 
-<div class="card">
-  <h2>Manage</h2>
-  <ul>
-    <li><a href="/coach/students">Manage Students</a></li>
-    <li><a href="/coach/events">Manage Events</a></li>
-    <li><a href="/upcoming">View Upcoming Events</a></li>
-  </ul>
-</div>
+{# ── Next upcoming event ── #}
+<section class="admin-section">
+  <h2>Next Upcoming Event</h2>
+  {% if next_event %}
+  <div class="card">
+    <div class="admin-event-row">
+      <div>
+        <strong>{{ next_event.name }}</strong>
+        <span class="badge badge-{{ next_event.type.value }}">{{ next_event.type.value.replace('_', ' ').title() }}</span>
+      </div>
+      <div class="admin-event-meta">
+        {{ next_event.start_datetime.strftime('%B %-d, %Y at %-I:%M %p') }}
+        {% if next_event.location_name %} · {{ next_event.location_name }}{% endif %}
+      </div>
+      <div class="admin-event-actions">
+        <a href="/coach/events/{{ next_event.id }}/edit" class="btn btn-secondary btn-sm">Edit</a>
+        {% if next_event.results_expected %}
+        <a href="/coach/events/{{ next_event.id }}/results" class="btn btn-primary btn-sm">Enter Results</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="empty-state">No upcoming events scheduled.</p>
+  {% endif %}
+</section>
 
-<form method="post" action="/coach/logout" style="margin-top:var(--sp-6)">
-  <button type="submit" class="btn btn-secondary">Log Out</button>
-</form>
+{# ── Events awaiting results ── #}
+<section class="admin-section">
+  <h2>Events Awaiting Results</h2>
+  {% if awaiting %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for evt in awaiting %}
+        <tr>
+          <td>{{ evt.name }}</td>
+          <td>{{ evt.start_datetime.strftime('%b %-d, %Y') }}</td>
+          <td>{{ evt.type.value.replace('_', ' ').title() }}</td>
+          <td><a href="/coach/events/{{ evt.id }}/results" class="btn btn-primary btn-sm">Enter Results</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty-state">No events are currently awaiting results. 🎉</p>
+  {% endif %}
+</section>
+
+{# ── Recently completed events ── #}
+<section class="admin-section">
+  <h2>Recently Completed Events</h2>
+  {% if recent_completed %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Date</th>
+          <th>Results</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for evt in recent_completed %}
+        <tr>
+          <td>{{ evt.name }}</td>
+          <td>{{ evt.start_datetime.strftime('%b %-d, %Y') }}</td>
+          <td>{{ evt.results | length }}</td>
+          <td>
+            <a href="/coach/events/{{ evt.id }}/results" class="btn btn-secondary btn-sm">
+              {% if evt.results | length == 0 %}Enter Results{% else %}Edit Results{% endif %}
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty-state">No completed events yet.</p>
+  {% endif %}
+</section>
 {% endblock %}

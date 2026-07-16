@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Cancel Event — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <h1>Cancel Event</h1>
+  <a href="/coach/events" class="btn btn-secondary btn-sm">← Events</a>
+</div>
+
+<div class="card admin-danger-confirm">
+  <h2>Cancel <strong>{{ event.name }}</strong>?</h2>
+  <p>Date: {{ event.start_datetime.strftime('%B %-d, %Y at %-I:%M %p') }}</p>
+  <p>The event will remain visible on public pages with a <strong>Cancelled</strong> notice.
+     You can edit it later if the event is rescheduled.</p>
+
+  <form method="post" action="/coach/events/{{ event.id }}/cancel">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="confirm" value="yes">
+    <div class="form-actions">
+      <button type="submit" class="btn btn-danger">Yes, Cancel This Event</button>
+      <a href="/coach/events" class="btn btn-secondary">No, Keep It</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

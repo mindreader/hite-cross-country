@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Delete Event — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <h1>Delete Event</h1>
+  <a href="/coach/events" class="btn btn-secondary btn-sm">← Events</a>
+</div>
+
+<div class="card admin-danger-confirm">
+  <h2>Delete <strong>{{ event.name }}</strong>?</h2>
+  <p>Date: {{ event.start_datetime.strftime('%B %-d, %Y at %-I:%M %p') }}</p>
+
+  {% if result_count > 0 %}
+  <div class="alert alert-error" role="alert">
+    <strong>Warning:</strong> This event has <strong>{{ result_count }} recorded result{% if result_count != 1 %}s{% endif %}</strong>.
+    Deleting this event will <em>permanently remove all of those results</em>. This cannot be undone.
+  </div>
+  {% else %}
+  <p>This event has no recorded results. Deleting is safe.</p>
+  {% endif %}
+
+  <form method="post" action="/coach/events/{{ event.id }}/delete">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="confirm" value="yes">
+    <div class="form-actions">
+      <button type="submit" class="btn btn-danger">
+        Yes, permanently delete this event{% if result_count > 0 %} and {{ result_count }} result{% if result_count != 1 %}s{% endif %}{% endif %}
+      </button>
+      <a href="/coach/events" class="btn btn-secondary">Cancel — keep event</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

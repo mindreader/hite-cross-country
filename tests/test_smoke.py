@@ -107,9 +107,10 @@ async def test_login_form_renders(client):
 
 @pytest.mark.asyncio
 async def test_login_with_bad_password(client):
+    from app.auth import generate_csrf_token
     r = await client.post(
         "/coach/login",
-        data={"password": "wrong"},
+        data={"password": "wrong", "csrf_token": generate_csrf_token()},
         headers={"content-type": "application/x-www-form-urlencoded"},
         follow_redirects=False,
     )
@@ -118,9 +119,10 @@ async def test_login_with_bad_password(client):
 
 @pytest.mark.asyncio
 async def test_login_with_dev_password(client):
+    from app.auth import generate_csrf_token
     r = await client.post(
         "/coach/login",
-        data={"password": "devcoach"},
+        data={"password": "devcoach", "csrf_token": generate_csrf_token()},
         headers={"content-type": "application/x-www-form-urlencoded"},
         follow_redirects=False,
     )

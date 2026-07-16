@@ -2,7 +2,81 @@
 {% block title %}Manage Students — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>Manage Students</h1>
-<p><a href="/coach/students/new" class="btn btn-primary">Add Student</a></p>
-<p class="text-muted">Placeholder — Phase 2 (admin agent) will render the student management table here.</p>
+<div class="admin-header">
+  <h1>Manage Students</h1>
+  <div class="admin-header-actions">
+    <a href="/coach" class="btn btn-secondary btn-sm">← Dashboard</a>
+    <a href="/coach/students/new" class="btn btn-primary">Add Student</a>
+  </div>
+</div>
+
+{% if flash_msg %}
+<div class="alert alert-{{ flash_type }}" role="alert">{{ flash_msg }}</div>
+{% endif %}
+
+{# Search #}
+<form method="get" action="/coach/students" class="admin-search-form">
+  <div class="admin-search-row">
+    <input
+      type="search"
+      name="q"
+      value="{{ q }}"
+      placeholder="Search by name…"
+      class="admin-search-input"
+      aria-label="Search students"
+    >
+    <button type="submit" class="btn btn-secondary">Search</button>
+    {% if q %}<a href="/coach/students" class="btn btn-secondary">Clear</a>{% endif %}
+  </div>
+</form>
+
+{% if students %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Grade</th>
+        <th>Status</th>
+        <th>Results</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in students %}
+      <tr class="{{ '' if s.active else 'row-inactive' }}">
+        <td>
+          <strong>{{ s.full_name }}</strong>
+          {% if s.display_name %}<br><small class="text-muted">Display: {{ s.display_name }}</small>{% endif %}
+        </td>
+        <td>{% if s.grade is not none %}Grade {{ s.grade }}{% else %}&mdash;{% endif %}</td>
+        <td>
+          {% if s.active %}
+          <span class="badge badge-active">Active</span>
+          {% else %}
+          <span class="badge badge-inactive">Inactive</span>
+          {% endif %}
+        </td>
+        <td>{{ s.results | length }}</td>
+        <td class="admin-row-actions">
+          <a href="/coach/students/{{ s.id }}/edit" class="btn btn-secondary btn-sm">Edit</a>
+          <form method="post" action="/coach/students/{{ s.id }}/toggle-active" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="btn btn-secondary btn-sm">
+              {% if s.active %}Mark Inactive{% else %}Mark Active{% endif %}
+            </button>
+          </form>
+          <a href="/coach/students/{{ s.id }}/delete" class="btn btn-danger btn-sm">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="text-muted">{{ students | length }} student{% if students | length != 1 %}s{% endif %} found.</p>
+{% else %}
+<p class="empty-state">
+  {% if q %}No students matched &ldquo;{{ q }}&rdquo;.{% else %}No students yet. <a href="/coach/students/new">Add the first student.</a>{% endif %}
+</p>
+{% endif %}
 {% endblock %}

@@ -1,7 +1,153 @@
 {% extends "base.html" %}
-{% block title %}{% if event_id is defined %}Edit Event{% else %}Create Event{% endif %} — Hite Elementary Cross Country{% endblock %}
+{% block title %}{% if event %}Edit Event{% elif duplicate_of %}Duplicate Event{% else %}Create Event{% endif %} — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>{% if event_id is defined %}Edit Event{% else %}Create Event{% endif %}</h1>
-<p class="text-muted">Placeholder — Phase 2 (admin agent) will render the event form here.</p>
+<div class="admin-header">
+  <h1>
+    {% if event %}Edit Event{% elif duplicate_of %}Duplicate: {{ duplicate_of.name }}{% else %}Create Event{% endif %}
+  </h1>
+  <a href="/coach/events" class="btn btn-secondary btn-sm">← Events</a>
+</div>
+
+{% if duplicate_of %}
+<div class="alert alert-warning" role="alert">
+  Duplicating <strong>{{ duplicate_of.name }}</strong>. Please set a new date before saving.
+</div>
+{% endif %}
+
+{% if errors %}
+<div class="alert alert-error" role="alert">
+  <strong>Please fix the following:</strong>
+  <ul class="error-list">
+    {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<form
+  method="post"
+  action="{% if event %}/coach/events/{{ event.id }}/edit{% else %}/coach/events/new{% endif %}"
+  class="card admin-form"
+  novalidate
+>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  {# ── Core details ── #}
+  <fieldset>
+    <legend>Event Details</legend>
+
+    <div class="form-group">
+      <label for="name">Event Name <span class="required">*</span></label>
+      <input type="text" id="name" name="name" value="{{ form.name or '' }}" required
+             placeholder="e.g. Hite Invitational" maxlength="200">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="date">Date <span class="required">*</span></label>
+        <input type="date" id="date" name="date" value="{{ form.date or '' }}" required>
+      </div>
+      <div class="form-group">
+        <label for="start_time">Start Time <span class="required">*</span></label>
+        <input type="time" id="start_time" name="start_time" value="{{ form.start_time or '' }}" required>
+      </div>
+      <div class="form-group">
+        <label for="end_time">End Time <span class="field-hint">(optional)</span></label>
+        <input type="time" id="end_time" name="end_time" value="{{ form.end_time or '' }}">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="type">Event Type <span class="required">*</span></label>
+        <select id="type" name="type" required>
+          {% for value, label in event_types %}
+          <option value="{{ value }}" {% if form.type == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="status">Status <span class="required">*</span></label>
+        <select id="status" name="status" required>
+          {% for value, label in event_statuses %}
+          <option value="{{ value }}" {% if form.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input type="checkbox" name="results_expected"
+               {% if form.results_expected == 'on' %}checked{% endif %}>
+        Results expected for this event
+      </label>
+      <small class="field-hint">Check for races and timed practices. Uncheck for regular practices and team meetings.</small>
+    </div>
+  </fieldset>
+
+  {# ── Distance ── #}
+  <fieldset>
+    <legend>Distance <span class="field-hint">(optional)</span></legend>
+    <div class="form-row">
+      <div class="form-group form-group-sm">
+        <label for="distance">Distance</label>
+        <input type="number" id="distance" name="distance" value="{{ form.distance or '' }}"
+               min="0" step="0.1" placeholder="e.g. 1.5">
+      </div>
+      <div class="form-group">
+        <label for="distance_unit">Unit</label>
+        <select id="distance_unit" name="distance_unit">
+          <option value="">— none —</option>
+          {% for value, label in distance_units %}
+          <option value="{{ value }}" {% if form.distance_unit == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  {# ── Location ── #}
+  <fieldset>
+    <legend>Location <span class="field-hint">(optional)</span></legend>
+    <div class="form-group">
+      <label for="location_name">Location Name</label>
+      <input type="text" id="location_name" name="location_name" value="{{ form.location_name or '' }}"
+             placeholder="e.g. Hite Elementary School">
+    </div>
+    <div class="form-group">
+      <label for="street_address">Street Address</label>
+      <input type="text" id="street_address" name="street_address" value="{{ form.street_address or '' }}"
+             placeholder="e.g. 7110 Westport Rd, Louisville, KY 40222">
+    </div>
+    <div class="form-group">
+      <label for="arrival_datetime">Arrival Time <span class="field-hint">(optional)</span></label>
+      <input type="datetime-local" id="arrival_datetime" name="arrival_datetime"
+             value="{{ form.arrival_datetime or '' }}">
+      <small class="field-hint">When participants should arrive (if different from start time).</small>
+    </div>
+  </fieldset>
+
+  {# ── Notes & instructions ── #}
+  <fieldset>
+    <legend>Notes &amp; Instructions</legend>
+    <div class="form-group">
+      <label for="description">Public Instructions <span class="field-hint">(shown on public event page)</span></label>
+      <textarea id="description" name="description" rows="3"
+                placeholder="e.g. Meet at the front of the school. Bring water and snacks.">{{ form.description or '' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="internal_notes">Internal Notes <span class="field-hint">⚠️ Coach-only — never shown publicly</span></label>
+      <textarea id="internal_notes" name="internal_notes" rows="3"
+                placeholder="Private notes for the coach only.">{{ form.internal_notes or '' }}</textarea>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">
+      {% if event %}Save Changes{% else %}Create Event{% endif %}
+    </button>
+    <a href="/coach/events" class="btn btn-secondary">Cancel</a>
+  </div>
+</form>
 {% endblock %}

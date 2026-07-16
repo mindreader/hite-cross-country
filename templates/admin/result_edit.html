@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Edit Result — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <h1>Edit Result</h1>
+  <a href="/coach/events/{{ result.event_id }}/results" class="btn btn-secondary btn-sm">← Results</a>
+</div>
+
+<div class="card">
+  <p><strong>Student:</strong> {{ result.student.full_name }}</p>
+  <p><strong>Event:</strong> {{ result.event.name }} &mdash;
+     {{ result.event.start_datetime.strftime('%B %-d, %Y') }}</p>
+</div>
+
+{% if errors %}
+<div class="alert alert-error" role="alert">
+  <strong>Please fix the following:</strong>
+  <ul class="error-list">
+    {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<form method="post" action="/coach/results/{{ result.id }}/edit" class="card admin-form" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <div class="form-group">
+    <label for="status">Status <span class="required">*</span></label>
+    <select id="status" name="status" required>
+      {% for value, label in result_statuses %}
+      <option value="{{ value }}" {% if form.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group form-group-sm">
+      <label for="minutes">Minutes</label>
+      <input type="number" id="minutes" name="minutes" value="{{ form.minutes }}"
+             min="0" max="99" inputmode="numeric" placeholder="0">
+      <small class="field-hint">Required if status is Completed.</small>
+    </div>
+    <div class="form-group form-group-sm">
+      <label for="seconds">Seconds (00–59)</label>
+      <input type="number" id="seconds" name="seconds" value="{{ form.seconds }}"
+             min="0" max="59" inputmode="numeric" placeholder="00">
+    </div>
+  </div>
+
+  <div class="form-group form-group-sm">
+    <label for="placement">Placement <span class="field-hint">(optional)</span></label>
+    <input type="number" id="placement" name="placement" value="{{ form.placement }}"
+           min="1" inputmode="numeric" placeholder="e.g. 3">
+  </div>
+
+  <div class="form-group">
+    <label for="notes">Notes <span class="field-hint">(optional)</span></label>
+    <input type="text" id="notes" name="notes" value="{{ form.notes }}"
+           placeholder="Optional notes about this result">
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="/coach/events/{{ result.event_id }}/results" class="btn btn-secondary">Cancel</a>
+    <a href="/coach/results/{{ result.id }}/delete" class="btn btn-danger">Delete This Result</a>
+  </div>
+</form>
+{% endblock %}

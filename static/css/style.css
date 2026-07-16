@@ -360,3 +360,363 @@ th { font-weight: 600; background: var(--bg-subtle); }
   font-size: var(--text-xl);
   font-weight: 700;
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   COACH ADMIN AREA — appended by admin agent
+   All rules below are scoped to admin-specific classes. No existing
+   rules above were modified.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Admin button size variants ─────────────────────────────────────── */
+
+.btn-sm {
+  padding: var(--sp-1) var(--sp-3);
+  font-size: var(--text-sm);
+  min-height: 36px;
+}
+
+.btn-xs {
+  padding: 2px var(--sp-2);
+  font-size: var(--text-sm);
+  min-height: 28px;
+}
+
+.btn-lg {
+  padding: var(--sp-3) var(--sp-6);
+  font-size: var(--text-lg);
+  min-height: 52px;
+}
+
+.btn-full { width: 100%; }
+
+/* ── Admin page header row ──────────────────────────────────────────── */
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-6);
+}
+
+.admin-header h1 { margin-bottom: 0; }
+
+.admin-header-actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+/* ── Admin sections ─────────────────────────────────────────────────── */
+
+.admin-section { margin-bottom: var(--sp-8); }
+.admin-section h2 {
+  font-size: var(--text-xl);
+  margin-bottom: var(--sp-3);
+  padding-bottom: var(--sp-2);
+  border-bottom: 2px solid var(--border);
+}
+
+/* ── Dashboard action grid ──────────────────────────────────────────── */
+
+.admin-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.admin-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: background 0.1s;
+}
+.admin-action-card:hover { background: var(--color-primary-light); text-decoration: none; }
+.admin-action-icon { font-size: 2rem; }
+
+/* ── Dashboard event rows ───────────────────────────────────────────── */
+
+.admin-event-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.admin-event-meta { color: var(--text-muted); font-size: var(--text-sm); }
+
+.admin-event-actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+/* ── Admin table row actions ────────────────────────────────────────── */
+
+.admin-row-actions {
+  display: flex;
+  gap: var(--sp-1);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.row-inactive { opacity: 0.6; }
+
+/* ── Admin form layout ──────────────────────────────────────────────── */
+
+.admin-form fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.admin-form legend {
+  font-weight: 700;
+  padding: 0 var(--sp-2);
+  color: var(--text);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.form-row .form-group { flex: 1; min-width: 160px; }
+
+.form-group-sm { max-width: 160px; }
+
+.form-actions {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+  margin-top: var(--sp-4);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  min-height: auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.field-hint { color: var(--text-muted); font-size: var(--text-sm); font-weight: 400; }
+small.field-hint { display: block; margin-top: var(--sp-1); }
+
+.required { color: #dc2626; font-weight: 700; }
+
+.error-list {
+  margin: var(--sp-2) 0 0;
+  padding-left: var(--sp-6);
+}
+.error-list li { margin-bottom: var(--sp-1); }
+
+/* ── Admin search ───────────────────────────────────────────────────── */
+
+.admin-search-form { margin-bottom: var(--sp-4); }
+
+.admin-search-row {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.admin-search-input { flex: 1; min-width: 200px; }
+
+/* ── Admin danger confirm page ──────────────────────────────────────── */
+
+.admin-danger-confirm h2 {
+  margin-bottom: var(--sp-4);
+  color: #991b1b;
+}
+
+.admin-hr {
+  border: none;
+  border-top: 2px solid var(--border);
+  margin: var(--sp-6) 0;
+}
+
+/* ── Admin login ────────────────────────────────────────────────────── */
+
+.admin-login-wrap {
+  max-width: 400px;
+  margin: var(--sp-8) auto;
+}
+
+.admin-login-wrap h1 { text-align: center; }
+
+/* ── Admin badge variants ───────────────────────────────────────────── */
+
+.badge-active   { background: #dcfce7; color: #166534; border: 1px solid #22c55e; }
+.badge-inactive { background: var(--neutral-bg); color: var(--text-muted); border: 1px solid var(--neutral-border); }
+.badge-completed { background: #dbeafe; color: #1d4ed8; border: 1px solid var(--color-primary); }
+.badge-other    { background: var(--neutral-bg); color: var(--text-muted); border: 1px solid var(--neutral-border); }
+
+/* ── Event meta summary bar ─────────────────────────────────────────── */
+
+.event-meta {
+  margin-bottom: var(--sp-4);
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+.event-meta p { margin: 0; }
+
+/* ── Result entry table (bulk entry screen) ─────────────────────────── */
+
+.result-entry-wrap {
+  margin-bottom: var(--sp-4);
+}
+
+.result-entry-table {
+  min-width: 600px;
+}
+
+/* Compact row cells for the entry table */
+.result-entry-table td,
+.result-entry-table th {
+  padding: var(--sp-1) var(--sp-2);
+  vertical-align: middle;
+}
+
+.result-student-name {
+  min-width: 140px;
+  font-weight: 600;
+}
+
+.row-error-msg {
+  display: block;
+  color: #dc2626;
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+
+.result-row-error {
+  background: #fff1f2;
+}
+
+/* Time inputs — big touch targets, fixed width */
+.result-time-input {
+  width: 64px;
+  text-align: center;
+  min-height: 48px;
+  font-size: var(--text-lg);
+  padding: var(--sp-1) var(--sp-2);
+}
+
+.result-time-cell { width: 72px; }
+
+/* Status select — wide enough to read */
+.result-status-select {
+  min-width: 140px;
+  font-size: var(--text-sm);
+  min-height: 48px;
+}
+
+.result-status-cell { min-width: 160px; }
+
+/* Placement input */
+.result-place-input {
+  width: 56px;
+  text-align: center;
+  min-height: 48px;
+  padding: var(--sp-1);
+}
+.result-place-cell { width: 64px; }
+
+/* Notes input — grows as needed */
+.result-notes-input {
+  min-width: 120px;
+  font-size: var(--text-sm);
+  min-height: 48px;
+}
+.result-notes-cell { min-width: 140px; }
+
+.result-actions-cell { white-space: nowrap; }
+
+/* Footer save bar */
+.result-entry-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding: var(--sp-4) 0;
+}
+
+.unsaved-indicator {
+  color: var(--practice-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  background: var(--practice-bg);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--practice-border);
+}
+
+/* ── Screen-reader-only utility ─────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Admin responsive: mobile ───────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+
+  .admin-header-actions { margin-left: 0; }
+
+  .admin-action-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-group-sm { max-width: 100%; }
+
+  .admin-row-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Result entry: make table scroll horizontally */
+  .result-entry-wrap { -webkit-overflow-scrolling: touch; }
+
+  .result-time-input { width: 56px; min-height: 52px; font-size: var(--text-xl); }
+  .result-status-select { min-height: 52px; }
+
+  .result-entry-footer { flex-direction: column; align-items: flex-start; }
+  .result-entry-footer .btn-lg { width: 100%; }
+}

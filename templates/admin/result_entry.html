@@ -1,7 +1,276 @@
 {% extends "base.html" %}
-{% block title %}Enter Results — Hite Elementary Cross Country{% endblock %}
+{% block title %}Enter Results — {{ event.name }} — Hite Elementary Cross Country{% endblock %}
+
+{% block head_extra %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
 
 {% block content %}
-<h1>Enter Results</h1>
-<p class="text-muted">Placeholder — Phase 2 (admin agent) will render the bulk result-entry form here.</p>
+<div class="admin-header">
+  <h1>Results: {{ event.name }}</h1>
+  <div class="admin-header-actions">
+    <a href="/coach/events" class="btn btn-secondary btn-sm">← Events</a>
+    <a href="/events/{{ event.slug }}" class="btn btn-secondary btn-sm">Public Page</a>
+  </div>
+</div>
+
+<div class="event-meta card">
+  <p>
+    <strong>{{ event.start_datetime.strftime('%B %-d, %Y at %-I:%M %p') }}</strong>
+    &middot; {{ event.type.value.replace('_', ' ').title() }}
+    {% if event.distance_label %}&middot; {{ event.distance_label }}{% endif %}
+    {% if event.location_name %}&middot; {{ event.location_name }}{% endif %}
+  </p>
+</div>
+
+{% if flash_msg %}
+<div class="alert alert-{{ flash_type }}" role="alert">{{ flash_msg }}</div>
+{% endif %}
+
+{% if errors %}
+<div class="alert alert-error" role="alert">
+  <strong>Please fix the following errors:</strong>
+  <ul class="error-list">
+    {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if warnings %}
+<div class="alert alert-warning" role="alert">
+  <strong>⚠ Unusual times detected:</strong>
+  <ul class="error-list">
+    {% for w in warnings %}
+    <li><strong>{{ w.student_name }}</strong>: {{ w.time_str }} — this time is unusually
+      {% if w.time_str < '3:00' %}fast{% else %}slow{% endif %}. Please double-check.</li>
+    {% endfor %}
+  </ul>
+  <p>If these times are correct, click <strong>Save Anyway</strong> below.</p>
+</div>
+{% endif %}
+
+<form
+  method="post"
+  action="/coach/events/{{ event.id }}/results"
+  id="results-form"
+  novalidate
+>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <input type="hidden" name="confirmed" value="{% if warnings %}1{% else %}0{% endif %}">
+
+  {% if rows %}
+  <div class="table-wrap result-entry-wrap">
+    <table class="result-entry-table">
+      <thead>
+        <tr>
+          <th scope="col">Student</th>
+          <th scope="col">Min</th>
+          <th scope="col">Sec</th>
+          <th scope="col">Status</th>
+          <th scope="col">Place</th>
+          <th scope="col">Notes</th>
+          {% if rows | selectattr('result') | list | length > 0 %}
+          <th scope="col">Actions</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr class="result-row{% if row.error %} result-row-error{% endif %}">
+          <td class="result-student-name">
+            <input type="hidden" name="student_id" value="{{ row.student.id }}">
+            <span>{{ row.student.full_name }}</span>
+            {% if row.error %}
+            <small class="row-error-msg" role="alert">{{ row.error }}</small>
+            {% endif %}
+          </td>
+          <td class="result-time-cell">
+            <label class="sr-only" for="min_{{ row.student.id }}">Minutes for {{ row.student.full_name }}</label>
+            <input
+              type="number"
+              id="min_{{ row.student.id }}"
+              name="minutes"
+              value="{{ row.minutes }}"
+              min="0"
+              max="99"
+              inputmode="numeric"
+              placeholder="0"
+              class="result-time-input"
+              aria-label="Minutes"
+              autocomplete="off"
+            >
+          </td>
+          <td class="result-time-cell">
+            <label class="sr-only" for="sec_{{ row.student.id }}">Seconds for {{ row.student.full_name }}</label>
+            <input
+              type="number"
+              id="sec_{{ row.student.id }}"
+              name="seconds"
+              value="{{ row.seconds }}"
+              min="0"
+              max="59"
+              inputmode="numeric"
+              placeholder="00"
+              class="result-time-input"
+              aria-label="Seconds"
+              autocomplete="off"
+            >
+          </td>
+          <td class="result-status-cell">
+            <label class="sr-only" for="status_{{ row.student.id }}">Status for {{ row.student.full_name }}</label>
+            <select id="status_{{ row.student.id }}" name="status" class="result-status-select">
+              <option value="" {% if not row.status %}selected{% endif %}>— skip —</option>
+              {% for value, label in result_statuses %}
+              <option value="{{ value }}" {% if row.status == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td class="result-place-cell">
+            <label class="sr-only" for="place_{{ row.student.id }}">Placement for {{ row.student.full_name }}</label>
+            <input
+              type="number"
+              id="place_{{ row.student.id }}"
+              name="placement"
+              value="{{ row.placement }}"
+              min="1"
+              inputmode="numeric"
+              placeholder="#"
+              class="result-place-input"
+              aria-label="Placement"
+            >
+          </td>
+          <td class="result-notes-cell">
+            <label class="sr-only" for="notes_{{ row.student.id }}">Notes for {{ row.student.full_name }}</label>
+            <input
+              type="text"
+              id="notes_{{ row.student.id }}"
+              name="notes"
+              value="{{ row.notes }}"
+              placeholder="Optional note"
+              class="result-notes-input"
+              aria-label="Notes"
+            >
+          </td>
+          {% if rows | selectattr('result') | list | length > 0 %}
+          <td class="result-actions-cell">
+            {% if row.result %}
+            <a href="/coach/results/{{ row.result.id }}/edit" class="btn btn-secondary btn-xs">Edit</a>
+            <a href="/coach/results/{{ row.result.id }}/delete" class="btn btn-danger btn-xs">Del</a>
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="result-entry-footer">
+    <button type="submit" class="btn btn-primary btn-lg" id="save-btn">
+      {% if warnings %}Save Anyway{% else %}Save Results{% endif %}
+    </button>
+    <a href="/coach/events" class="btn btn-secondary">Cancel</a>
+    <span class="unsaved-indicator" id="unsaved-indicator" hidden aria-live="polite">
+      Unsaved changes
+    </span>
+  </div>
+  {% else %}
+  <p class="empty-state">No active students found. <a href="/coach/students/new">Add students first.</a></p>
+  {% endif %}
+</form>
+
+{# Per-result quick-edit links for existing results #}
+{% set has_any_results = rows | selectattr('result') | list | length > 0 %}
+{% if has_any_results %}
+<section class="admin-section">
+  <h2>Individual Result Actions</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Student</th><th>Time</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for row in rows if row.result %}
+        <tr>
+          <td>{{ row.student.full_name }}</td>
+          <td class="time-display">
+            {% if row.result.time_seconds %}{{ row.result.time_seconds | mmss }}{% else %}&mdash;{% endif %}
+          </td>
+          <td>{{ row.result.status.value.replace('_', ' ').title() }}</td>
+          <td>
+            <a href="/coach/results/{{ row.result.id }}/edit" class="btn btn-secondary btn-sm">Edit</a>
+            <a href="/coach/results/{{ row.result.id }}/delete" class="btn btn-danger btn-sm">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  'use strict';
+  var form = document.getElementById('results-form');
+  var indicator = document.getElementById('unsaved-indicator');
+  var dirty = false;
+  var saved = false;
+
+  if (!form) return;
+
+  // Mark dirty on any input change
+  form.addEventListener('input', function () {
+    dirty = true;
+    if (indicator) indicator.hidden = false;
+  });
+  form.addEventListener('change', function () {
+    dirty = true;
+    if (indicator) indicator.hidden = false;
+  });
+
+  // Clear dirty on submit
+  form.addEventListener('submit', function () {
+    saved = true;
+    dirty = false;
+  });
+
+  // Warn before leaving
+  window.addEventListener('beforeunload', function (e) {
+    if (dirty && !saved) {
+      e.preventDefault();
+      e.returnValue = 'You have unsaved results. Leave anyway?';
+      return e.returnValue;
+    }
+  });
+
+  // Auto-pad seconds to two digits on blur
+  var secInputs = form.querySelectorAll('input[name="seconds"]');
+  secInputs.forEach(function (input) {
+    input.addEventListener('blur', function () {
+      var v = this.value.trim();
+      if (v !== '' && /^\d$/.test(v)) {
+        this.value = '0' + v;
+      }
+    });
+  });
+
+  // When status changes to non-completed, clear time inputs for that row
+  var statusSelects = form.querySelectorAll('select[name="status"]');
+  statusSelects.forEach(function (sel) {
+    sel.addEventListener('change', function () {
+      var row = this.closest('tr');
+      if (!row) return;
+      if (this.value !== 'completed') {
+        var minInput = row.querySelector('input[name="minutes"]');
+        var secInput = row.querySelector('input[name="seconds"]');
+        if (minInput) minInput.placeholder = '';
+        if (secInput) secInput.placeholder = '';
+      }
+    });
+  });
+}());
+</script>
 {% endblock %}
