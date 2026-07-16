@@ -250,3 +250,28 @@ uvicorn app.main:app --reload
 ```bash
 pytest
 ```
+
+## Post-Phase-2 addenda (integration notes)
+
+Phase 2 landed; the contract above held. Deltas worth knowing:
+
+- **CSRF**: all admin POST forms carry a `csrf_token` (helpers
+  `generate_csrf_token()` / `verify_csrf_token()` in `app/auth.py`).
+  Any new admin form must include it.
+- **util.py grew** (all additive): calendar helpers
+  (`build_month_grid`, `prev_month`/`next_month`, `month_name`,
+  `calendar_day_abbrevs`, `event_cutoff_dt`), admin form helpers
+  (`unique_slug`, `parse_date_time`, `parse_datetime_local`,
+  `format_date`, `format_time_hhmm`, `format_datetime_local`).
+- **Templates should call `seconds_to_mmss(...)` as a function**, not the
+  `|mmss` filter — the filter is only registered once the app lifespan
+  runs, which unit-test harnesses may skip.
+- **Past/upcoming cutoff**: an event is past once `end_datetime` (if set,
+  else `start_datetime`) has passed — `util.event_cutoff_dt`.
+- **Chart.js 4.4.4** is pinned via CDN on the student detail page only
+  (page `scripts` block), never in `base.html`.
+- **Inline JSON**: anything rendered into a `<script>` block with
+  `| safe` must escape `</` (see `public.py` graph payload) to prevent
+  script-breakout from coach-entered names.
+- **Dev shell**: `nix-shell dev.nix` → `hite-seed`, `hite-dev`, `pytest`
+  (no venv needed; mirrors pyproject.toml).
