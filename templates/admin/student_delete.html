@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Delete Student — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <h1>Delete Student</h1>
+  <a href="/coach/students" class="btn btn-secondary btn-sm">← Students</a>
+</div>
+
+<div class="card admin-danger-confirm">
+  <h2>Are you sure you want to delete <strong>{{ student.full_name }}</strong>?</h2>
+
+  {% if result_count > 0 %}
+  <div class="alert alert-error" role="alert">
+    <strong>Warning:</strong> This student has <strong>{{ result_count }} recorded result{% if result_count != 1 %}s{% endif %}</strong>.
+    Deleting will permanently remove all of their results. This cannot be undone.
+  </div>
+  <p><strong>We strongly recommend marking the student <em>inactive</em> instead.</strong>
+  Inactive students are hidden from public pages and result-entry forms, but their history is preserved.</p>
+  <form method="post" action="/coach/students/{{ student.id }}/toggle-active" style="display:inline;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit" class="btn btn-primary">Mark Inactive Instead</button>
+  </form>
+  {% else %}
+  <p>This student has no recorded results. Deleting is safe.</p>
+  {% endif %}
+
+  <hr class="admin-hr">
+
+  <form method="post" action="/coach/students/{{ student.id }}/delete">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="confirm" value="yes">
+    <div class="form-actions">
+      <button type="submit" class="btn btn-danger">
+        Yes, permanently delete {{ student.full_name }}{% if result_count > 0 %} and {{ result_count }} result{% if result_count != 1 %}s{% endif %}{% endif %}
+      </button>
+      <a href="/coach/students" class="btn btn-secondary">Cancel — keep student</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

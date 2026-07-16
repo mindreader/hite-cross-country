@@ -1,7 +1,93 @@
 {% extends "base.html" %}
-{% block title %}{% if student_id is defined %}Edit Student{% else %}Add Student{% endif %} — Hite Elementary Cross Country{% endblock %}
+{% block title %}{% if student %}Edit {{ student.full_name }}{% else %}Add Student{% endif %} — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>{% if student_id is defined %}Edit Student{% else %}Add Student{% endif %}</h1>
-<p class="text-muted">Placeholder — Phase 2 (admin agent) will render the student form here.</p>
+<div class="admin-header">
+  <h1>{% if student %}Edit Student{% else %}Add Student{% endif %}</h1>
+  <a href="/coach/students" class="btn btn-secondary btn-sm">← Students</a>
+</div>
+
+{% if errors %}
+<div class="alert alert-error" role="alert">
+  <strong>Please fix the following:</strong>
+  <ul class="error-list">
+    {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<form
+  method="post"
+  action="{% if student %}/coach/students/{{ student.id }}/edit{% else %}/coach/students/new{% endif %}"
+  class="card admin-form"
+  novalidate
+>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="first_name">First Name <span class="required">*</span></label>
+      <input type="text" id="first_name" name="first_name" value="{{ form.first_name or '' }}"
+             required autocomplete="given-name">
+    </div>
+    <div class="form-group">
+      <label for="last_name">Last Name <span class="required">*</span></label>
+      <input type="text" id="last_name" name="last_name" value="{{ form.last_name or '' }}"
+             required autocomplete="family-name">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="display_name">Display Name <span class="field-hint">(optional — overrides public name)</span></label>
+    <input type="text" id="display_name" name="display_name" value="{{ form.display_name or '' }}"
+           placeholder="e.g. Robert W.">
+    <small class="field-hint">If blank, public pages will show &ldquo;First L.&rdquo; format.</small>
+  </div>
+
+  <div class="form-group form-group-sm">
+    <label for="grade">Grade <span class="field-hint">(optional)</span></label>
+    <input type="number" id="grade" name="grade" value="{{ form.grade or '' }}"
+           min="0" max="12" placeholder="e.g. 4">
+  </div>
+
+  <div class="form-group">
+    <label class="checkbox-label">
+      <input type="checkbox" name="active" {% if form.active == 'on' or (student and student.active and form.active != '') %}checked{% endif %}>
+      Active student
+    </label>
+    <small class="field-hint">Inactive students won't appear in result entry forms but their history is preserved.</small>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{% if student %}Save Changes{% else %}Add Student{% endif %}</button>
+    <a href="/coach/students" class="btn btn-secondary">Cancel</a>
+  </div>
+</form>
+
+{% if student %}
+<section class="admin-section">
+  <h2>Results ({{ student.results | length }})</h2>
+  {% if student.results %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Event</th><th>Date</th><th>Status</th><th>Time</th></tr>
+      </thead>
+      <tbody>
+        {% for r in student.results | sort(attribute='event.start_datetime', reverse=True) %}
+        <tr>
+          <td>{{ r.event.name }}</td>
+          <td>{{ r.event.start_datetime.strftime('%b %-d, %Y') }}</td>
+          <td>{{ r.status.value.replace('_', ' ').title() }}</td>
+          <td>{% if r.time_seconds %}{{ seconds_to_mmss(r.time_seconds) }}{% else %}&mdash;{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty-state">No results recorded for this student yet.</p>
+  {% endif %}
+</section>
+{% endif %}
 {% endblock %}

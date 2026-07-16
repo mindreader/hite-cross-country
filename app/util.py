@@ -195,3 +195,68 @@ def month_name(month: int) -> str:
 def calendar_day_abbrevs() -> list:
     """Return the list of day abbreviations starting Monday."""
     return _DAY_ABBREVS
+# ── Slug collision helper (new) ────────────────────────────────────────
+
+
+def unique_slug(base_slug: str, exists_fn) -> str:
+    """Return *base_slug*, appending -2, -3, … until *exists_fn(slug)* is False.
+
+    *exists_fn* is a callable that returns True when the candidate slug is
+    already taken (e.g. a DB query).
+    """
+    slug = base_slug
+    n = 2
+    while exists_fn(slug):
+        slug = f"{base_slug}-{n}"
+        n += 1
+    return slug
+
+
+# ── Form / datetime helpers (new) ─────────────────────────────────────
+
+
+def parse_date_time(date_str: str, time_str: str) -> "datetime | None":
+    """Combine a 'YYYY-MM-DD' date string and 'HH:MM' time string into a naive datetime.
+
+    Returns None if either string is empty or invalid.
+    """
+    if not date_str or not time_str:
+        return None
+    try:
+        return datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+    except ValueError:
+        return None
+
+
+def parse_datetime_local(dt_str: str) -> "datetime | None":
+    """Parse an HTML datetime-local string ('YYYY-MM-DDTHH:MM') to a naive datetime.
+
+    Returns None if the string is empty or invalid.
+    """
+    if not dt_str:
+        return None
+    try:
+        return datetime.strptime(dt_str.strip(), "%Y-%m-%dT%H:%M")
+    except ValueError:
+        return None
+
+
+def format_date(dt: "datetime | None") -> str:
+    """Format a datetime to 'YYYY-MM-DD' for date inputs.  Returns '' if None."""
+    if dt is None:
+        return ""
+    return dt.strftime("%Y-%m-%d")
+
+
+def format_time_hhmm(dt: "datetime | None") -> str:
+    """Format a datetime to 'HH:MM' for time inputs.  Returns '' if None."""
+    if dt is None:
+        return ""
+    return dt.strftime("%H:%M")
+
+
+def format_datetime_local(dt: "datetime | None") -> str:
+    """Format a datetime to 'YYYY-MM-DDTHH:MM' for datetime-local inputs.  Returns '' if None."""
+    if dt is None:
+        return ""
+    return dt.strftime("%Y-%m-%dT%H:%M")

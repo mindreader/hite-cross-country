@@ -129,3 +129,29 @@ def init_auth() -> None:
     """Call at startup to eagerly validate config and emit warnings."""
     _password_hash()
     _session_secret()
+
+
+# ── CSRF helpers (new functions — do not modify above) ─────────────────
+
+_CSRF_SALT = "hite-csrf-v1"
+_CSRF_MAX_AGE = 60 * 60  # 1 hour
+
+
+def generate_csrf_token() -> str:
+    """Return a signed, time-limited CSRF token (stateless double-submit style).
+
+    Embed in every admin POST form as a hidden field named ``csrf_token``.
+    Verify with :func:`verify_csrf_token` on POST handlers.
+    """
+    return _get_serializer().dumps({"t": "csrf"}, salt=_CSRF_SALT)
+
+
+def verify_csrf_token(token: str) -> bool:
+    """Return True if *token* is a valid, unexpired CSRF token."""
+    if not token:
+        return False
+    try:
+        data = _get_serializer().loads(token, salt=_CSRF_SALT, max_age=_CSRF_MAX_AGE)
+        return data.get("t") == "csrf"
+    except Exception:
+        return False

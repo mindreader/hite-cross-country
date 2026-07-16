@@ -2,7 +2,126 @@
 {% block title %}Manage Events — Hite Elementary Cross Country{% endblock %}
 
 {% block content %}
-<h1>Manage Events</h1>
-<p><a href="/coach/events/new" class="btn btn-primary">Create Event</a></p>
-<p class="text-muted">Placeholder — Phase 2 (admin agent) will render the event management table here.</p>
+<div class="admin-header">
+  <h1>Manage Events</h1>
+  <div class="admin-header-actions">
+    <a href="/coach" class="btn btn-secondary btn-sm">← Dashboard</a>
+    <a href="/coach/events/new" class="btn btn-primary">Create Event</a>
+  </div>
+</div>
+
+{% if flash_msg %}
+<div class="alert alert-{{ flash_type }}" role="alert">{{ flash_msg }}</div>
+{% endif %}
+
+{# ── Upcoming events ── #}
+<section class="admin-section">
+  <h2>Upcoming Events</h2>
+  {% if upcoming %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date &amp; Time</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Results</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for evt in upcoming %}
+        <tr>
+          <td><strong>{{ evt.name }}</strong></td>
+          <td>{{ evt.start_datetime.strftime('%b %-d, %Y %-I:%M %p') }}</td>
+          <td>{{ evt.type.value.replace('_', ' ').title() }}</td>
+          <td>
+            {% if evt.status.value == 'cancelled' %}<span class="badge badge-cancelled">Cancelled</span>
+            {% elif evt.status.value == 'postponed' %}<span class="badge badge-postponed">Postponed</span>
+            {% else %}<span class="badge">{{ evt.status.value.title() }}</span>{% endif %}
+          </td>
+          <td>{% if evt.results_expected %}{{ evt.results | length }} / active students{% else %}&mdash;{% endif %}</td>
+          <td class="admin-row-actions">
+            <a href="/coach/events/{{ evt.id }}/edit" class="btn btn-secondary btn-sm">Edit</a>
+            <a href="/coach/events/{{ evt.id }}/duplicate" class="btn btn-secondary btn-sm">Duplicate</a>
+            {% if evt.results_expected %}
+            <a href="/coach/events/{{ evt.id }}/results" class="btn btn-primary btn-sm">Results</a>
+            {% endif %}
+            {% if evt.status.value not in ['cancelled', 'completed'] %}
+            <form method="post" action="/coach/events/{{ evt.id }}/complete" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button type="submit" class="btn btn-secondary btn-sm">Mark Complete</button>
+            </form>
+            {% endif %}
+            {% if evt.status.value != 'cancelled' %}
+            <a href="/coach/events/{{ evt.id }}/cancel" class="btn btn-danger btn-sm">Cancel</a>
+            {% endif %}
+            <a href="/coach/events/{{ evt.id }}/postpone" class="btn btn-secondary btn-sm">Postpone</a>
+            <a href="/coach/events/{{ evt.id }}/delete" class="btn btn-danger btn-sm">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty-state">No upcoming events. <a href="/coach/events/new">Create one.</a></p>
+  {% endif %}
+</section>
+
+{# ── Past events ── #}
+<section class="admin-section">
+  <h2>Past Events</h2>
+  {% if past %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Results</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for evt in past %}
+        <tr>
+          <td><strong>{{ evt.name }}</strong></td>
+          <td>{{ evt.start_datetime.strftime('%b %-d, %Y') }}</td>
+          <td>{{ evt.type.value.replace('_', ' ').title() }}</td>
+          <td>
+            {% if evt.status.value == 'cancelled' %}<span class="badge badge-cancelled">Cancelled</span>
+            {% elif evt.status.value == 'postponed' %}<span class="badge badge-postponed">Postponed</span>
+            {% elif evt.status.value == 'completed' %}<span class="badge badge-completed">Completed</span>
+            {% else %}<span class="badge">{{ evt.status.value.title() }}</span>{% endif %}
+          </td>
+          <td>{{ evt.results | length }}</td>
+          <td class="admin-row-actions">
+            <a href="/coach/events/{{ evt.id }}/edit" class="btn btn-secondary btn-sm">Edit</a>
+            <a href="/coach/events/{{ evt.id }}/duplicate" class="btn btn-secondary btn-sm">Duplicate</a>
+            {% if evt.results_expected %}
+            <a href="/coach/events/{{ evt.id }}/results" class="btn btn-primary btn-sm">
+              {% if evt.results | length == 0 %}Enter Results{% else %}Edit Results{% endif %}
+            </a>
+            {% endif %}
+            {% if evt.status.value not in ['completed'] %}
+            <form method="post" action="/coach/events/{{ evt.id }}/complete" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button type="submit" class="btn btn-secondary btn-sm">Mark Complete</button>
+            </form>
+            {% endif %}
+            <a href="/coach/events/{{ evt.id }}/delete" class="btn btn-danger btn-sm">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty-state">No past events.</p>
+  {% endif %}
+</section>
 {% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Delete Result — Hite Elementary Cross Country{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <h1>Delete Result</h1>
+  <a href="/coach/events/{{ result.event_id }}/results" class="btn btn-secondary btn-sm">← Results</a>
+</div>
+
+<div class="card admin-danger-confirm">
+  <h2>Delete result for <strong>{{ result.student.full_name }}</strong>?</h2>
+  <p><strong>Event:</strong> {{ result.event.name }} &mdash;
+     {{ result.event.start_datetime.strftime('%B %-d, %Y') }}</p>
+  {% if result.time_seconds %}
+  <p><strong>Recorded time:</strong> <span class="time-display">{{ seconds_to_mmss(result.time_seconds) }}</span></p>
+  {% endif %}
+  <p><strong>Status:</strong> {{ result.status.value.replace('_', ' ').title() }}</p>
+  <p>This action cannot be undone. The result will be permanently deleted.</p>
+
+  <form method="post" action="/coach/results/{{ result.id }}/delete">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="confirm" value="yes">
+    <div class="form-actions">
+      <button type="submit" class="btn btn-danger">Yes, Delete This Result</button>
+      <a href="/coach/events/{{ result.event_id }}/results" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
