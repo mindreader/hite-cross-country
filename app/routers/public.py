@@ -186,7 +186,9 @@ async def student_detail(
 
     # Graph data (chronological)
     graph_data = _build_graph_data(results)
-    graph_data_json = json.dumps(graph_data)
+    # `<\/` escaping prevents a `</script>` inside coach-entered event names
+    # from breaking out of the inline <script> block (template uses `| safe`).
+    graph_data_json = json.dumps(graph_data).replace("</", "<\\/")
 
     default_distance = _most_common_distance(graph_data)
     distances = _distinct_distances(graph_data)
