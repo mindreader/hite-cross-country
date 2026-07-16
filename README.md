@@ -6,8 +6,8 @@ password-protected coach admin area.
 
 - Requirements: `docs/PRD.txt`
 - Stack: Python / FastAPI / SQLAlchemy / Jinja2 / SQLite / Chart.js
-- Deploy: single pod on the the-cluster k8s cluster, sqlite on node-local
-  disk, hourly consistent snapshots pulled to backup-host.
+- Deploy: any single-pod container runtime; see `docs/DEPLOYMENT.md` for
+  the runtime contract (env vars, volumes, health checks, backup snapshots).
 
 Public site is noindex'd (robots meta + X-Robots-Tag); students shown as
 first name + last initial.
