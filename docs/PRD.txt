@@ -1,0 +1,841 @@
+﻿Hite Elementary Cross Country Website
+Product Requirements Document
+1. Project overview
+Create a simple, mobile-friendly website for the Hite Elementary cross country team.
+The website will allow students and parents to:
+* Find a student and view all of that student’s recorded times
+* Distinguish between race and practice results at a glance
+* Track a student’s progress over time using a graph
+* Browse results by event
+* View upcoming practices, races, and other team events
+* Access a calendar of the team’s schedule
+The coach will have a private administrative area for:
+* Managing students
+* Creating events
+* Publishing upcoming events
+* Entering times for the team
+* Editing or correcting existing information
+The site should be easy to use, require little ongoing maintenance, and work especially well on mobile devices.
+________________
+
+
+2. Project goals
+The primary goals are to:
+1. Make it easy for parents and students to find individual results.
+2. Show how each student’s times are changing over the season.
+3. Provide a single place for both upcoming events and completed results.
+4. Make entering team results fast and simple for the coach.
+5. Protect administrative tools from public access.
+6. Avoid requiring parents or students to create accounts.
+7. Minimize duplicate data entry for the coach.
+An event should only need to be created once. Before the event occurs, it should appear in the upcoming schedule. After it occurs and results are entered, the same event should appear in the historical results section.
+________________
+
+
+3. Primary users
+3.1 Students and parents
+Students and parents should be able to:
+* Search or browse for a student
+* View a student’s complete results history
+* Identify races and practices visually
+* View a graph of the student’s times over the season
+* Browse upcoming events
+* View a calendar of practices and races
+* Browse results from a particular event
+* Use the site without creating an account
+3.2 Coach
+The coach should be able to:
+* Add and manage students
+* Create and update practices, races, and other events
+* Publish schedule information before results are available
+* Enter times for multiple students on one screen
+* Edit or delete incorrect results
+* Mark events as cancelled, postponed, or completed
+* Access all administrative tools through a protected area
+________________
+
+
+4. Site structure
+The public website should include the following primary sections:
+* Home
+* Students
+* Student Results
+* Upcoming Events
+* Calendar
+* Event Results
+The private coach area should include:
+* Coach Dashboard
+* Student Management
+* Event Management
+* Result Entry
+________________
+
+
+5. Public website requirements
+5.1 Home page
+The home page should provide the fastest route to the information most users are looking for.
+It should include:
+* Site title: Hite Elementary Cross Country
+* A short introductory description
+* Student search
+* Alphabetical student directory
+* Upcoming events
+* Links to the full calendar and event list
+Suggested introductory copy:
+View practice times, race results, student progress, and upcoming events for the Hite Elementary cross country team.
+Student search
+Users should be able to:
+* Search by student name
+* Select a student from the search results
+* Browse an alphabetical list if they do not use search
+Selecting a student should open that student’s results page.
+Upcoming events preview
+The home page should display the next three to five upcoming events.
+Each event preview should include:
+* Event name
+* Date
+* Start time
+* Event type
+* Location, when available
+* Distance, when applicable
+* Arrival time or short instructions, when applicable
+Include a prominent link to:
+* View Full Calendar
+* View All Upcoming Events
+________________
+
+
+5.2 Student directory
+Example URL:
+/students
+The student directory should include:
+* Search field
+* Alphabetical list of active students
+* Optional grade-level filter
+* Links to each student’s results page
+To reduce the amount of student information published publicly, the school may choose to display:
+* Full student names, or
+* First name and last initial
+The final naming format should be approved by the school.
+________________
+
+
+5.3 Student results page
+Example URL:
+/students/robert-watson
+Each student should have a dedicated page.
+Student header
+The page should prominently display:
+* Student name
+* Optional grade
+* Optional season summary
+The season summary may include:
+* Number of recorded events
+* Fastest race time
+* Most recent result
+* Personal best for a selected distance
+Results history
+Display all results in descending date order, with the newest result first.
+Each result should include:
+* Event date
+* Event name
+* Event type
+* Student time
+* Distance, when applicable
+* Optional placement
+* Optional notes
+* Link to the full event page
+Visual treatment
+The results should follow the general visual approach shown in the provided reference:
+* Race results highlighted in red
+* Practice results highlighted in yellow
+* Newest results shown first
+* Times easy to scan quickly
+A softer red and yellow may be used to improve readability.
+Event type must also be displayed in text so that color is not the only way users can distinguish between races and practices.
+Example:
+Robert Watson
+Race · August 30
+ Hite Invitational
+9:00
+Practice · August 28
+ Timed Mile
+9:00
+Practice · August 20
+ Timed Mile
+8:30
+________________
+
+
+5.4 Student progress graph
+Each student page should include a graph showing how the student’s time has changed over the season.
+Graph requirements
+* Horizontal axis: event date
+* Vertical axis: completion time
+* Each point represents one recorded result
+* Results should appear in chronological order
+* Race and practice points should be visually distinguishable
+* Tapping or hovering over a point should display:
+   * Event name
+   * Event date
+   * Event type
+   * Distance
+   * Student time
+Graph filters
+Users should be able to filter the graph by:
+* All results
+* Race results only
+* Practice results only
+* Distance
+Time display
+Although times should be stored internally as total seconds, graph labels should display standard time formatting such as:
+* 8:30
+* 9:02
+The graph should make it clear that a lower time generally represents improvement.
+Different event distances
+Times from different distances should not be presented as directly comparable.
+The preferred approach is to:
+* Require a distance for timed events, and
+* Allow the graph to display one distance at a time
+If multiple distances are shown together, the interface must clearly state that the times are not directly comparable.
+Limited data
+If a student has only one result, show the result but display a message such as:
+More results are needed before a progress trend can be shown.
+________________
+
+
+5.5 Upcoming events page
+Example URL:
+/upcoming
+This page should show all future events in chronological order, with the soonest event first.
+Users should be able to filter by:
+* All events
+* Practices
+* Races
+* Team meetings
+* Other events
+Each upcoming event should display:
+* Event name
+* Date
+* Start time
+* End time, optional
+* Event type
+* Location
+* Distance, when applicable
+* Arrival time, optional
+* Short instructions or notes
+* Event status
+Past events should automatically move out of this view.
+________________
+
+
+5.6 Calendar page
+Example URL:
+/calendar
+The calendar should provide two views:
+* Month view
+* Agenda or list view
+Month view
+The month view should:
+* Show each event on its scheduled date
+* Allow navigation between months
+* Include a button to return to the current month
+* Allow users to open an event for more information
+* Use visual indicators for event type
+Suggested event colors:
+* Race: red
+* Practice: yellow
+* Team meeting or other: neutral color
+Agenda view
+The agenda view should show future events in chronological order.
+Each entry should include:
+* Date
+* Event name
+* Start time
+* Event type
+* Location
+* Event status
+The agenda view should be the default on smaller mobile screens because it will generally be easier to read than a full monthly calendar.
+Calendar filters
+Users should be able to filter the calendar by:
+* All events
+* Practices
+* Races
+* Team meetings
+* Other events
+________________
+
+
+5.7 Event list page
+Example URL:
+/events
+The event list should include both future and past events.
+It may be divided into:
+* Upcoming events
+* Recent events
+* Past events
+Past events should be shown in descending date order.
+Each event listing should include:
+* Event name
+* Date
+* Event type
+* Distance, when applicable
+* Location, when available
+* Status
+* Number of recorded results, for completed events
+Users should be able to filter by:
+* All events
+* Practices
+* Races
+* Other event types
+* Distance
+* Season, if multiple seasons are eventually supported
+________________
+
+
+5.8 Event details page
+Example URL:
+/events/hite-invitational-2026-08-30
+Future and completed events should use the same event page.
+Upcoming event information
+For an upcoming event, display:
+* Event name
+* Event date
+* Start time
+* End time, optional
+* Event type
+* Distance, when applicable
+* Location name
+* Street address, optional
+* Arrival time, optional
+* Coach instructions
+* Event status
+* Map link, when an address is available
+Completed event information
+For a completed event, also display results.
+Each result should include:
+* Placement, when applicable
+* Student name
+* Student time
+* Result status
+* Optional notes
+Results should be sorted by fastest time by default.
+Student names should link to the corresponding student pages.
+Event status
+Supported statuses should include:
+* Scheduled
+* Postponed
+* Cancelled
+* Completed
+Cancelled events should remain visible and be clearly marked as cancelled.
+Postponed events should display the updated schedule and indicate that the original schedule changed.
+________________
+
+
+6. Coach administration requirements
+6.1 Coach access
+The coach area should use a separate URL, such as:
+/coach
+or:
+/team-admin
+A different or difficult-to-guess URL should not be treated as the only security measure.
+At minimum, the coach area should require:
+* A shared password, or
+* A coach email and password
+A standard authenticated login is preferred.
+Public users should not be able to:
+* Add students
+* Create events
+* Enter results
+* Edit results
+* Delete data
+* Access administrative pages
+________________
+
+
+6.2 Coach dashboard
+The dashboard should provide clear links to:
+* Create a new event
+* Enter results
+* View upcoming events
+* Manage existing events
+* Manage students
+* Review recent entries
+The dashboard may also show:
+* Next upcoming event
+* Events awaiting results
+* Recently completed events
+* Recently edited results
+________________
+
+
+6.3 Student management
+The coach should be able to:
+* Add a student
+* Edit a student
+* Search for a student
+* Mark a student active or inactive
+* View all results associated with a student
+* Delete a student only when appropriate
+Suggested student fields:
+* First name
+* Last name
+* Display name
+* Grade, optional
+* Active or inactive status
+Marking students inactive is preferable to deleting them because it preserves historical results.
+A student with existing results should not be deleted without a clear warning.
+________________
+
+
+6.4 Event creation and management
+The coach should be able to create an event before any student results exist.
+Event fields
+* Event name
+* Event date
+* Start time
+* End time, optional
+* Event type:
+   * Practice
+   * Race
+   * Team meeting
+   * Other
+* Event status:
+   * Scheduled
+   * Postponed
+   * Cancelled
+   * Completed
+* Results expected:
+   * Yes
+   * No
+* Distance, optional
+* Distance unit, optional:
+   * Miles
+   * Kilometers
+   * Meters
+* Location name, optional
+* Street address, optional
+* Arrival time, optional
+* Description or coach instructions, optional
+* Internal notes, optional
+The Results expected setting should determine whether the event includes a result-entry workflow.
+For example:
+* Race: results expected
+* Timed practice: results expected
+* Regular practice: results may not be expected
+* Team meeting: results not expected
+Event actions
+The coach should be able to:
+* Create an event
+* Edit an event
+* Duplicate an event
+* Cancel an event
+* Postpone an event
+* Mark an event completed
+* Delete an event
+* Enter or edit results
+Duplicating events will make it easier to create recurring practices without rebuilding all the event details.
+________________
+
+
+6.5 Result entry
+After creating an event that expects results, the coach should be able to enter times for multiple students on one screen.
+Example:
+Student
+	Minutes
+	Seconds
+	Status
+	Robert Watson
+	9
+	00
+	Completed
+	Jane Smith
+	8
+	42
+	Completed
+	Alex Jones
+	
+
+	
+
+	Did not participate
+	Result-entry requirements
+* Show all active students
+* Allow multiple times to be entered before saving
+* Allow minutes and seconds to be entered separately
+* Automatically format saved times as MM:SS
+* Permit optional notes
+* Permit optional placement
+* Allow the coach to leave students blank
+* Do not create a result for a blank student row
+* Warn the coach before leaving with unsaved changes
+* Show confirmation after results are saved
+* Make the data-entry page usable on a phone or tablet
+Result statuses
+Supported statuses should include:
+* Completed
+* Did not participate
+* Did not finish
+* Excused
+* Disqualified, optional
+A time should generally only be required when the status is Completed.
+Validation
+The system should:
+* Confirm that minutes contain a valid number
+* Confirm that seconds are between 00 and 59
+* Prevent duplicate results for the same student and event
+* Warn the coach about unusually high or low times
+* Prevent saving an incomplete time
+* Preserve entered information when a validation error occurs
+________________
+
+
+6.6 Editing and deleting results
+The coach should be able to:
+* Edit an individual time
+* Add a missing student result
+* Change a result status
+* Add or edit notes
+* Remove an incorrect result
+* Correct an event date or distance
+* Delete an event and its associated results
+Destructive actions should require confirmation.
+Deleting an event with results should display a warning explaining that all connected results will also be deleted.
+________________
+
+
+7. Calendar and schedule behavior
+The calendar should be generated automatically from event records.
+The following behavior is required:
+* Future scheduled events appear in Upcoming Events.
+* Future scheduled events appear on the calendar.
+* Past events move automatically into the historical event list.
+* A coach should not need to recreate an event when adding results.
+* Events without results should remain visible.
+* Cancelled events should remain visible with a cancellation notice.
+* Postponed events should display the updated date.
+* Completed events should display results when results exist.
+* Dates and times should use the team’s local time zone.
+* Events should be ordered by date and start time.
+The site should account for events that:
+* Do not have a specific start time
+* Span multiple hours
+* Are cancelled
+* Are moved to a different date
+* Do not generate student times
+________________
+
+
+8. Optional calendar subscription features
+These features may be included if they are straightforward, but they are not required for the initial version.
+Individual event export
+Allow a user to download or add an individual event to:
+* Google Calendar
+* Apple Calendar
+* Outlook
+Team calendar subscription
+Provide a subscribable calendar feed containing all future team events.
+This may be implemented using an .ics feed.
+The event data should be structured so calendar export can be added later without redesigning the database.
+________________
+
+
+9. Data requirements
+9.1 Student
+Suggested fields:
+* id
+* first_name
+* last_name
+* display_name
+* grade
+* active
+* created_at
+* updated_at
+________________
+
+
+9.2 Event
+Suggested fields:
+* id
+* name
+* start_datetime
+* end_datetime
+* type
+* status
+* results_expected
+* distance
+* distance_unit
+* location_name
+* street_address
+* arrival_datetime
+* description
+* internal_notes
+* created_at
+* updated_at
+Event type values
+* practice
+* race
+* team_meeting
+* other
+Event status values
+* scheduled
+* postponed
+* cancelled
+* completed
+________________
+
+
+9.3 Result
+Suggested fields:
+* id
+* student_id
+* event_id
+* time_seconds
+* status
+* placement
+* notes
+* created_at
+* updated_at
+Result status values
+* completed
+* did_not_participate
+* did_not_finish
+* excused
+* disqualified
+________________
+
+
+9.4 Time storage
+Times should be stored internally as total seconds.
+Examples:
+* 9:00 should be stored as 540
+* 8:30 should be stored as 510
+* 10:05 should be stored as 605
+The website should format the stored value as minutes and seconds for public display.
+________________
+
+
+10. Design requirements
+10.1 General design
+The site should be:
+* Simple
+* Friendly
+* Easy to scan
+* Appropriate for an elementary school audience
+* Fast to load
+* Consistent across pages
+* Usable without instructions
+The design may use Hite Elementary branding, colors, or a logo if those assets are provided and approved.
+________________
+
+
+10.2 Result colors
+Use the following visual distinction:
+* Race: red
+* Practice: yellow
+The exact shades should provide adequate contrast.
+A recommended treatment would be:
+* Light red background with a darker red border
+* Light yellow background with a darker yellow border
+* Dark text
+The interface should also include a text label such as Race or Practice.
+________________
+
+
+10.3 Mobile requirements
+The site should be designed primarily for mobile use.
+On smaller screens:
+* Student search should remain prominent
+* Results should stack vertically
+* Calendar agenda view should be the default
+* Graphs should fit the screen width
+* Tables should become stacked rows or support horizontal scrolling
+* Buttons should be large enough to tap easily
+* Text should be readable without zooming
+* Data entry should be practical on a phone or tablet
+________________
+
+
+10.4 Accessibility
+The website should:
+* Avoid using color as the only indicator
+* Provide adequate text contrast
+* Use clear headings and labels
+* Support keyboard navigation
+* Include form labels
+* Display understandable validation messages
+* Make interactive graph values available through text or accessible labels
+* Use readable font sizes
+________________
+
+
+11. Privacy and security
+Because the website concerns elementary school students, privacy should be treated carefully.
+The website should not display:
+* Student email addresses
+* Parent contact information
+* Home addresses
+* Ages or birth dates
+* Medical information
+* Private coach notes
+* Any unnecessary personal details
+Before launching, the school should determine:
+* Whether student names and times may be displayed publicly
+* Whether full names or first name and last initial should be used
+* Whether the site should be blocked from search-engine indexing
+* Whether the public site should require a shared team password
+Administrative security
+The coach area must:
+* Require authentication
+* Not rely solely on an obscure URL
+* Use secure password storage
+* Prevent public users from accessing administrative actions
+* Use secure connections
+* Protect forms from unauthorized submissions
+________________
+
+
+12. Error and empty states
+The site should provide clear messages when information is unavailable.
+Examples:
+Student has no results
+No results have been recorded for this student yet.
+Event has no results
+Results have not been entered for this event.
+No upcoming events
+There are currently no upcoming events scheduled.
+Search has no matches
+No students matched your search.
+Graph has insufficient information
+More results are needed before a progress trend can be shown.
+Cancelled event
+This event has been cancelled.
+________________
+
+
+13. Minimum viable product
+The initial version should include:
+1. Public home page
+2. Student search and directory
+3. Individual student results pages
+4. Results in descending date order
+5. Red race highlighting
+6. Yellow practice highlighting
+7. Student progress graph
+8. Distance filtering for graphs
+9. Upcoming events preview
+10. Full upcoming events page
+11. Calendar month view
+12. Calendar agenda view
+13. Event details pages
+14. Historical event results
+15. Password-protected coach area
+16. Student management
+17. Event creation and editing
+18. Event cancellation and postponement
+19. Bulk result entry
+20. Result editing and deletion
+21. Mobile-friendly design
+22. Basic privacy and security protections
+________________
+
+
+14. Features for a later phase
+The following features are useful but not required for the initial launch:
+* Spreadsheet import
+* CSV export
+* Google Calendar subscription
+* Apple Calendar and Outlook subscription
+* Individual event calendar downloads
+* Recurring event creation
+* Personal-best indicators
+* Automatic improvement calculations
+* Team-wide statistics
+* Grade-level filters
+* Multiple seasons
+* Parent or student accounts
+* Email or text reminders
+* Weather information
+* Meet scoring
+* Attendance tracking
+* Photo uploads
+* Coach announcements
+* Push notifications
+A particularly useful second-phase feature would be automatically identifying and highlighting each student’s personal best for a given distance.
+________________
+
+
+15. Acceptance criteria
+The initial website will be considered ready when all of the following are true.
+Public experience
+* A parent can find a student in no more than two or three actions.
+* Student pages show all recorded results.
+* Results are ordered from newest to oldest.
+* Race results are visibly red.
+* Practice results are visibly yellow.
+* Each result includes a written event-type label.
+* Each student can view a graph of their results.
+* Graphs can be filtered by distance.
+* Users can view upcoming practices and races.
+* Users can browse events using a calendar.
+* Users can switch between month and agenda views.
+* Cancelled and postponed events are clearly identified.
+* Users can open an event to view its details.
+* Completed events can display team results.
+* Student names in event results link to student pages.
+Coach experience
+* The coach can log in to a protected area.
+* The coach can add and edit students.
+* The coach can create an event before results exist.
+* The coach can add schedule information to an event.
+* The coach can enter times for multiple students on one screen.
+* Invalid times cannot be saved.
+* The coach can edit an existing result.
+* The coach can add a result after an event.
+* The coach can cancel or postpone an event.
+* The coach can delete an event after confirming the action.
+* Public users cannot access administrative functions.
+Technical experience
+* The website works on current mobile and desktop browsers.
+* Pages load quickly on a typical mobile connection.
+* The graph is usable on a phone.
+* The coach’s data-entry interface is usable on a phone or tablet.
+* Past and future events are separated automatically.
+* The coach does not need to enter the same event twice for the calendar and results.
+________________
+
+
+16. Implementation guidance for the development agent
+Build the simplest maintainable version that satisfies the requirements.
+A suitable implementation may use:
+* A lightweight web framework
+* A relational database
+* A standard charting library
+* Server-side authentication
+* Responsive HTML and CSS
+* A calendar component with month and agenda views
+The implementation should prioritize:
+1. Reliable data entry
+2. Clear student results
+3. Mobile usability
+4. Privacy
+5. Basic security
+6. Ease of maintenance
+7. Minimal duplicate work for the coach
+The first build should include sample data for:
+* At least six students
+* Several practices
+* Several races
+* One future event
+* One cancelled or postponed event
+* Multiple distances
+* Students with different numbers of recorded results
+The sample data should make it possible to evaluate:
+* Student search
+* Race and practice highlighting
+* Result sorting
+* Progress graphs
+* Calendar behavior
+* Event result pages
+* Coach data entry
+* Mobile layout
